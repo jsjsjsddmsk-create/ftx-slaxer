@@ -1,0 +1,16 @@
+{
+  "name": "polsec-independent-node-demo",
+  "version": "1.0.0",
+  "description": "Independent Node.js license and Lua project management demo",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
