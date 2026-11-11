@@ -1,0 +1,12 @@
+{
+  "name": "ftx-v50-owner-inspector",
+  "version": "50.1.0",
+  "private": true,
+  "description": "FTX V50 public source inspector with owner-managed API keys",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
