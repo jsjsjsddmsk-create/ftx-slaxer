@@ -11,7 +11,7 @@ async function publicOnly(u){if(!['http:','https:'].includes(u.protocol)||u.user
 function send(res,s,obj){res.writeHead(s,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(obj));}
 function rate(req,res){const k=req.socket.remoteAddress||'unknown',n=Date.now();let v=limits.get(k)||{start:n,count:0};if(n-v.start>60000)v={start:n,count:0};v.count++;limits.set(k,v);if(v.count>12){send(res,429,{error:'Rate limit reached. Try again in one minute.'});return true;}return false;}
 function active(k){return !k.blacklisted&&(!k.expiresAt||Number(k.expiresAt)>Date.now())}
-function keyRecord(req){const key=String(req.headers['x-api-key']||'');if(!key)return null;const d=readDB(),h=hash(key);return d.keys.find(k=>k.hash===h&&active(k)&&(!k.hwid||k.hwid===String(req.headers['x-hwid']||'')))||null}
+function keyRecord(req){const key=String(req.headers['x-api-key']||'');if(!key)return null;if(key===OWNER_KEY)return {owner:true};const d=readDB(),h=hash(key);return d.keys.find(k=>k.hash===h&&active(k)&&!d.blacklist.includes(String(k.discordUsername||'').toLowerCase())&&(!k.hwid||k.hwid===String(req.headers['x-hwid']||'')))||null}
 function isOwner(req){return String(req.headers['x-api-key']||'')===OWNER_KEY}
 function requireKey(req,res){const k=keyRecord(req);if(!k){send(res,401,{error:'Invalid, expired, blacklisted, or device-mismatched API key.'});return null}return k}
 function readBody(req){return new Promise((ok,no)=>{let s='';req.on('data',c=>{s+=c.toString();if(Buffer.byteLength(s)>MAX_BODY){no(Error('Request too large.'));req.destroy();}});req.on('end',()=>ok(s));req.on('error',no);});}
