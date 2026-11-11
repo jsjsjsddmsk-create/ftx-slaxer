@@ -1,0 +1,12 @@
+{
+  "name": "ftx-v50-source-inspector",
+  "version": "50.0.0",
+  "private": true,
+  "description": "FTX V50 multi-language static source inspector",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
