@@ -1,6 +1,8 @@
 'use strict';
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),dns=require('node:dns').promises,net=require('node:net'),crypto=require('node:crypto');
-const PORT=Number(process.env.PORT||3000),INDEX=path.join(__dirname,'index.html'),DB=path.join(__dirname,'data.json'),MAX_BODY=12000,MAX_BYTES=2*1024*1024,TIMEOUT=10000,MAX_ASSETS=12,limits=new Map();
+const PORT=Number(process.env.PORT||3000),INDEX=path.join(__dirname,'index.html'),DATA_DIR=process.env.DATA_DIR||__dirname,MAX_BODY=12000,MAX_BYTES=2*1024*1024,TIMEOUT=10000,MAX_ASSETS=12,limits=new Map();
+fs.mkdirSync(DATA_DIR,{recursive:true});
+const DB=path.join(DATA_DIR,'data.json');
 const OWNER_KEY=process.env.OWNER_KEY||'ftx-dumper-ontop';
 function hash(s){return crypto.createHash('sha256').update(String(s)).digest('hex')}
 function readDB(){try{const d=JSON.parse(fs.readFileSync(DB,'utf8'));if(!Array.isArray(d.keys))d.keys=[];if(!Array.isArray(d.blacklist))d.blacklist=[];return d}catch{return{keys:[],blacklist:[]}}}
