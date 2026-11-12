@@ -1,24 +1,22 @@
-FTX DUMPER 2027 — IMAGE-FREE UI EDITION
+FTX DUMPER — CHERRY BLOSSOM INTRO EDITION
 
-FILES IN THIS DOWNLOAD (all .txt as requested)
-- s200.txt  -> rename to server.js
-- json.txt  -> rename to package.json
-- gui.txt   -> rename to index.html
-- read.txt  -> rename to README.md (optional for Render)
+FILES
+- s200.txt -> rename to server.js
+- json.txt -> rename to package.json
+- gui.txt -> rename to index.html
+- assets/spiderman.mp4 -> keep at assets/spiderman.mp4
+- assets/cherry-blossom.jpg -> keep at assets/cherry-blossom.jpg
+
+The site now opens with a full-screen Spider-Man video. Tap anywhere to skip and enter the site. The video is muted/autoplay-enabled for mobile browser compatibility; autoplay may still depend on browser settings. The cherry-blossom photo is used as the site-wide background. The video is slightly zoomed to crop a small amount from its edges; this may not remove a TikTok watermark if it moves or is embedded away from the cropped edge.
 
 RENDER SETTINGS
 - Runtime: Node
 - Build command: npm install
 - Start command: npm start
 - Node version: 20 or newer
-- Set OWNER_KEY in Render Environment. The supplied development owner key is: ftx-dumper-ontop
+- Set OWNER_KEY in Render Environment. Change the development key before deployment.
+- Keep the assets folder alongside server.js and index.html.
 - For persistent API-key/IP activity records, attach a persistent disk and mount it at /opt/render/project/src.
 
-WHAT CHANGED
-- Removed the large embedded artwork from the top hero section.
-- Removed the artwork from the intro screen and replaced it with a simple FTX 👓👓 text mark.
-- Kept the animated intro text and the existing API-key/owner flow.
-- The server records the public IP and last-seen time when an API key or owner key successfully signs in. The sign-in screen discloses this logging.
-
-IMPORTANT
-Rename the files exactly as listed before deploying; Node and Render will not treat .txt files as executable project filenames. Do not expose the owner key publicly. Use a long random OWNER_KEY for a production deployment. The inspector only analyzes public resources you are authorized to inspect; it does not bypass access controls or retrieve private server-side source.
+IMPORTANT SECURITY NOTE
+The owner key must be set as a private environment variable. Do not publish it in the README or client-side HTML.
