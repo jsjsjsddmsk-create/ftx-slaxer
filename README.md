@@ -1,22 +1,29 @@
-FTX DUMPER — CHERRY BLOSSOM INTRO EDITION
+FTX V50 — MULTI-LANGUAGE SOURCE INSPECTOR
 
-FILES
-- s200.txt -> rename to server.js
-- json.txt -> rename to package.json
-- gui.txt -> rename to index.html
-- assets/spiderman.mp4 -> keep at assets/spiderman.mp4
-- assets/cherry-blossom.jpg -> keep at assets/cherry-blossom.jpg
+FILES (rename before deployment)
+S50.txt -> server.js
+pa50.txt -> package.json
+in50.txt -> index.html
+Ra50.txt -> README.txt
 
-The site now opens with a full-screen Spider-Man video. Tap anywhere to skip and enter the site. The video is muted/autoplay-enabled for mobile browser compatibility; autoplay may still depend on browser settings. The cherry-blossom photo is used as the site-wide background. The video is slightly zoomed to crop a small amount from its edges; this may not remove a TikTok watermark if it moves or is embedded away from the cropped edge.
+RENDER
+Runtime: Node.js 20+
+Build Command: npm install
+Start Command: npm start
+Root Directory: blank if files are in repository root.
 
-RENDER SETTINGS
-- Runtime: Node
-- Build command: npm install
-- Start command: npm start
-- Node version: 20 or newer
-- Set OWNER_KEY in Render Environment. Change the development key before deployment.
-- Keep the assets folder alongside server.js and index.html.
-- For persistent API-key/IP activity records, attach a persistent disk and mount it at /opt/render/project/src.
+FEATURES
+- Auto-detection for common source types: HTML, CSS, JavaScript, TypeScript, Python, PHP, Lua/Luau, Java, C/C++, C#, Ruby, Go, Rust, JSON, XML and text.
+- 51 static checks for common code-quality and security-review patterns.
+- Multi-file upload and source editor.
+- Base64, hex, URL, Unicode escape, HTML entity decoders and JSON formatter.
+- Safe whitespace cleanup; submitted source is never executed.
+- Public website scan: initial HTML plus up to 12 same-origin public JavaScript/CSS assets.
+- Copy, source download and report export.
 
-IMPORTANT SECURITY NOTE
-The owner key must be set as a private environment variable. Do not publish it in the README or client-side HTML.
+IMPORTANT LIMITS
+A website URL exposes only resources the remote server sends to a browser. Python, PHP, Ruby, Java and other server-side source normally remain private on the server. Upload source files you own or are authorized to inspect to analyze those languages.
+This tool does not bypass authentication, paywalls, bot protections, encryption or access controls. It cannot guarantee original-source reconstruction or an error-free website.
+
+SERVER SAFETY
+HTTP/HTTPS only; local/private destinations blocked; redirect, rate, request-size, response-size and asset-count limits applied. Use only on sites and code you own or have permission to inspect.
