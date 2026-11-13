@@ -21,7 +21,7 @@ function saveDB() { fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2)); }
 function getClientIp(req) {
   let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
   if (ip.includes(',')) ip = ip.split(',')[0].trim();
-  return ip.replace(/^.*:/, ''); // إزالة IPv6 prefix لو موجود
+  return ip.replace(/^.*:/, ''); 
 }
 
 function isPrivateIPv4(ip) {
@@ -38,6 +38,10 @@ async function assertPublicHost(url) {
   if (!['http:','https:'].includes(url.protocol)) throw new Error('Only HTTP and HTTPS URLs are allowed.');
   if (url.username || url.password) throw new Error('URLs containing credentials are not allowed.');
   const host = url.hostname.toLowerCase().replace(/^\[|\]$/g,'');
+  
+  // حماية الموقع بتاعك
+  if (host === 'lrz-x-marawan.onrender.com') throw new Error('THIS WAS OWNER APP');
+
   if (!host || host==='localhost' || host.endsWith('.localhost') || host.endsWith('.local')) throw new Error('Blocked host.');
   const kind = net.isIP(host);
   if (kind===4 && isPrivateIPv4(host)) throw new Error('Blocked host: private IP.');
@@ -47,6 +51,7 @@ async function assertPublicHost(url) {
     if (!records.length || records.some(r => r.family===4 ? isPrivateIPv4(r.address) : isPrivateIPv6(r.address))) throw new Error('Blocked host: DNS resolves to private IP.');
   }
 }
+
 function limited(req, res) {
   const ip = getClientIp(req);
   const now = Date.now(), entry = rate.get(ip) || {start:now,count:0};
@@ -55,6 +60,7 @@ function limited(req, res) {
   if (entry.count > 45) { send(res,429,{error:'Too many requests. Wait one minute.'}); return true; }
   return false;
 }
+
 function send(res,status,obj) {
   res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
   res.end(JSON.stringify(obj));
@@ -70,6 +76,7 @@ async function fetchPublic(raw) {
     try {
       response=await fetch(current,{ method:'GET', redirect:'manual', signal:controller.signal, headers:{'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64)','Accept':'text/html,*/*;q=0.8'} });
     } finally { clearTimeout(timer); }
+    
     if ([301,302,303,307,308].includes(response.status)) {
       if (hop===4) throw new Error('Too many redirects.');
       const loc=response.headers.get('location'); if(!loc) throw new Error('Redirect missing.');
@@ -91,7 +98,6 @@ async function fetchPublic(raw) {
 }
 
 const server=http.createServer(async(req,res)=>{
-  // 1. Route: Fetch Website
   if(req.method==='POST' && req.url==='/api/fetch'){
     if(limited(req,res))return;
     let body='';
@@ -100,6 +106,10 @@ const server=http.createServer(async(req,res)=>{
       try {
         const parsed=JSON.parse(body||'{}');
         if(typeof parsed.url!=='string'||parsed.url.length>2048) return send(res,400,{error:'Invalid URL.'});
+        
+        // حماية إضافية في السيرفر
+        if (parsed.url.includes('lrz-x-marawan.onrender.com')) return send(res, 403, { error: 'THIS WAS OWNER APP' });
+
         let url; try { url=new URL(parsed.url); } catch { return send(res,400,{error:'Invalid URL.'}); }
         const result=await fetchPublic(url.href);
         send(res,200,result);
@@ -108,7 +118,6 @@ const server=http.createServer(async(req,res)=>{
     return;
   }
 
-  // 2. Route: Auth (Login)
   if(req.method==='POST' && req.url==='/api/auth'){
     let body='';
     req.on('data',c=>body+=c);
@@ -124,7 +133,7 @@ const server=http.createServer(async(req,res)=>{
         if (db.keys[key]) {
           const keyData = db.keys[key];
           if (Date.now() > keyData.expiry) { delete db.keys[key]; saveDB(); return send(res, 403, { error: 'EXPIRED' }); }
-          if (keyData.hwid !== "FREE" && keyData.ip !== clientIp) return send(res, 403, { error: 'HWID MISMATCH (Wrong Device/IP)' });
+          if (keyData.hwid !== "FREE" && keyData.ip !== clientIp) return send(res, 403, { error: 'HWID MISMATCH' });
           return send(res, 200, { success: true });
         }
         return send(res, 403, { error: 'Invalid Key' });
@@ -133,7 +142,6 @@ const server=http.createServer(async(req,res)=>{
     return;
   }
 
-  // 3. Route: Generate Key
   if(req.method==='POST' && req.url==='/api/generate'){
     let body='';
     req.on('data',c=>body+=c);
@@ -158,7 +166,6 @@ const server=http.createServer(async(req,res)=>{
     return;
   }
 
-  // 4. Route: Blacklist
   if(req.method==='POST' && req.url==='/api/blacklist'){
     let body=''; req.on('data',c=>body+=c);
     req.on('end',()=>{
@@ -169,11 +176,8 @@ const server=http.createServer(async(req,res)=>{
     return;
   }
   if(req.method==='GET' && req.url==='/api/blacklist') return send(res, 200, { blacklist: db.blacklist });
-
-  // 5. Route: Health
   if(req.method==='GET' && req.url==='/api/health') return send(res,200,{ok:true, service:'V24', node:process.version});
 
-  // 6. Serve Static Files (index.html)
   if(req.method==='GET'){
     const pathname=decodeURIComponent((req.url||'/').split('?')[0]);
     const target=pathname==='/'?'index.html':pathname.replace(/^\/+/,'');
