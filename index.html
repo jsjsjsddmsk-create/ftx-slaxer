@@ -41,9 +41,7 @@
             background-size: 100% 4px; z-index: 10; pointer-events: none; opacity: 0.6;
         }
 
-        /* ========================================= */
-        /* شاشة تسجيل الدخول */
-        /* ========================================= */
+        /* Login Screen */
         #loginScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center; z-index: 100; padding: 20px; transition: opacity 0.5s ease, visibility 0.5s;
@@ -54,8 +52,7 @@
             background: var(--glass); border: 1px solid var(--border); padding: 40px 30px; width: 100%; max-width: 500px;
             display: flex; flex-direction: column; gap: 25px; text-align: center; clip-path: polygon(0 0, 100% 0, 100% 90%, 95% 100%, 0 100%);
             backdrop-filter: blur(15px); box-shadow: 0 0 50px rgba(255, 0, 60, 0.1), inset 0 0 20px rgba(255, 0, 60, 0.05);
-            animation: slideUp 0.8s cubic-bezier(0.1, 0.8, 0.2, 1);
-            margin: auto;
+            animation: slideUp 0.8s cubic-bezier(0.1, 0.8, 0.2, 1); margin: auto;
         }
 
         .login-box.shake-error { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; border-color: var(--red-neon); box-shadow: 0 0 50px rgba(255, 0, 60, 0.5); }
@@ -89,9 +86,7 @@
         .auth-success { background: var(--cyan) !important; color: #000 !important; box-shadow: 0 0 40px var(--cyan) !important; }
         .auth-error { background: #fff !important; color: var(--red-neon) !important; box-shadow: 0 0 40px var(--red-neon) !important; }
 
-        /* ========================================= */
-        /* شاشة فك التشفير (Obfuscation Screen) */
-        /* ========================================= */
+        /* Obfuscation Screen */
         #obfuscationScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
             background: #000; z-index: 200; display: none; flex-direction: column;
@@ -111,9 +106,7 @@
             opacity: 0; animation: fadeIn 1s 1.5s forwards;
         }
 
-        /* ========================================= */
-        /* الموقع الأساسي */
-        /* ========================================= */
+        /* Main App */
         #mainApp { display: none; flex-direction: column; min-height: 100vh; opacity: 0; transition: opacity 1s ease; z-index: 20; width: 100%; }
         #mainApp.show-app { display: flex; opacity: 1; }
 
@@ -165,72 +158,37 @@
         .total-download-box span:last-child { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: #fff; text-shadow: 0 0 15px var(--red-neon); }
 
         /* Download Actions */
-        .download-actions {
-            display: none;
-            gap: 10px;
-            margin-top: 15px;
-            animation: slideUp 0.5s ease;
-        }
+        .download-actions { display: none; gap: 10px; margin-top: 15px; animation: slideUp 0.5s ease; }
         .download-actions.show { display: flex; }
-        
         .dl-btn {
-            flex: 1;
-            background: rgba(0,0,0,0.6);
-            border: 1px solid var(--cyan);
-            color: var(--cyan);
-            padding: 12px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: 0.3s;
-            clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);
-            font-family: 'Fira Code', monospace;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            flex: 1; background: rgba(0,0,0,0.6); border: 1px solid var(--cyan); color: var(--cyan); padding: 12px;
+            font-size: 0.9rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.3s;
+            clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%); font-family: 'Fira Code', monospace;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        .dl-btn:hover {
-            background: var(--cyan);
-            color: #000;
-            box-shadow: 0 0 20px var(--cyan);
-            transform: scale(1.05);
-        }
-        .dl-btn.zip-btn {
-            border-color: var(--red-neon);
-            color: var(--red-neon);
-        }
-        .dl-btn.zip-btn:hover {
-            background: var(--red-neon);
-            box-shadow: 0 0 20px var(--red-neon);
-        }
+        .dl-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan); transform: scale(1.05); }
+        .dl-btn.zip-btn { border-color: var(--red-neon); color: var(--red-neon); }
+        .dl-btn.zip-btn:hover { background: var(--red-neon); box-shadow: 0 0 20px var(--red-neon); }
 
         .log-section { display: flex; flex-direction: column; min-height: 400px; clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%); }
         .log-header { padding: 15px 20px; background: rgba(255, 0, 60, 0.15); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; color: var(--red-neon); font-size: 0.8rem; }
         .log-content { flex: 1; padding: 20px; overflow-y: auto; font-size: 0.9rem; line-height: 1.6; display: flex; flex-direction: column; gap: 8px; position: relative; }
         .log-content::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: rgba(255, 0, 60, 0.8); box-shadow: 0 0 20px var(--red-neon); animation: scan 3s linear infinite; pointer-events: none; }
-
         .log-line { color: #888; }
         .log-line.success { color: var(--cyan); }
         .log-line.error { color: var(--red-neon); }
         .log-line.info { color: #ffaa00; }
 
-        /* ========================================= */
         /* Generator & Logout Styles */
-        /* ========================================= */
         .generator-form { padding: 30px; display: flex; flex-direction: column; gap: 20px; clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%); }
         .form-group { display: flex; flex-direction: column; gap: 8px; }
         .form-group label { color: var(--text); font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; }
-
         .input-row { display: flex; gap: 10px; }
-        .custom-select, .custom-input {
-            appearance: none; background: rgba(0,0,0,0.8); border: 1px solid var(--border); color: #fff; padding: 15px; font-size: 1rem; border-radius: 4px; outline: none; cursor: pointer; transition: 0.3s; font-family: 'Fira Code', monospace;
-        }
+        .custom-select, .custom-input { appearance: none; background: rgba(0,0,0,0.8); border: 1px solid var(--border); color: #fff; padding: 15px; font-size: 1rem; border-radius: 4px; outline: none; cursor: pointer; transition: 0.3s; font-family: 'Fira Code', monospace; }
         .custom-select { flex: 1; }
         .custom-select:focus, .custom-input:focus { border-color: var(--red-neon); box-shadow: 0 0 10px rgba(255,0,60,0.3); }
         .custom-select option { background: #000; color: #fff; }
         .custom-input { width: 100px; text-align: center; display: block; }
-
         .toggle-container { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.5); border: 1px solid var(--border); padding: 15px; border-radius: 4px; }
         .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -238,23 +196,12 @@
         .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--red-dark); border-color: var(--red-neon); box-shadow: 0 0 15px rgba(255,0,60,0.5); }
         input:checked + .slider:before { transform: translateX(26px); background-color: var(--red-neon); }
-
         #keyResultArea { display: none; flex-direction: column; gap: 10px; margin-top: 10px; animation: fadeIn 0.3s ease; }
-        
-        .code-container {
-            background: #0a0a0a; border: 1px solid #333; border-radius: 8px; padding: 15px;
-            font-family: 'Fira Code', monospace; font-size: 0.95rem; text-align: left; line-height: 1.5;
-            color: #00ffcc; overflow-x: auto; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-        }
-        
+        .code-container { background: #0a0a0a; border: 1px solid #333; border-radius: 8px; padding: 15px; font-family: 'Fira Code', monospace; font-size: 0.95rem; text-align: left; line-height: 1.5; color: #00ffcc; overflow-x: auto; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
         .code-keyword { color: #ff003c; font-weight: bold; }
         .code-string { color: #ffaa00; }
         .code-comment { color: #777; }
-
-        .copy-btn {
-            background: var(--cyan); color: #000; border: none; padding: 12px; font-weight: 700; cursor: pointer;
-            transition: 0.3s; text-transform: uppercase; letter-spacing: 2px; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);
-        }
+        .copy-btn { background: var(--cyan); color: #000; border: none; padding: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%); }
         .copy-btn:hover { background: #fff; box-shadow: 0 0 20px var(--cyan); }
         .copy-btn.copied { background: #fff; color: #000; box-shadow: 0 0 30px #fff; }
 
@@ -269,38 +216,15 @@
         .remove-bl-btn { background: transparent; border: 1px solid #fff; color: #fff; padding: 5px 10px; font-size: 0.7rem; cursor: pointer; transition: 0.3s; }
         .remove-bl-btn:hover { background: #fff; color: #000; }
 
-        /* ========================================= */
-        /* WARNING MODAL (LOGOUT) */
-        /* ========================================= */
-        .logout-container {
-            background: var(--glass); border: 2px solid var(--red-neon); border-radius: 15px;
-            padding: 50px 40px; text-align: center; max-width: 600px; width: 100%;
-            box-shadow: 0 0 50px rgba(255, 0, 60, 0.3), inset 0 0 30px rgba(255, 0, 60, 0.1);
-            animation: slideUp 0.5s ease; margin: auto;
-        }
-
-        .warning-icon {
-            font-size: 4rem; color: var(--red-neon); margin-bottom: 20px; display: inline-block;
-            animation: pulse-border 1.5s infinite alternate; text-shadow: 0 0 20px var(--red-neon);
-        }
-
-        .logout-container h2 {
-            font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 4vw, 2.5rem); color: #fff; margin-bottom: 15px;
-            text-shadow: 0 0 10px var(--red-neon);
-        }
-
+        /* Warning Modal */
+        .logout-container { background: var(--glass); border: 2px solid var(--red-neon); border-radius: 15px; padding: 50px 40px; text-align: center; max-width: 600px; width: 100%; box-shadow: 0 0 50px rgba(255, 0, 60, 0.3), inset 0 0 30px rgba(255, 0, 60, 0.1); animation: slideUp 0.5s ease; margin: auto; }
+        .warning-icon { font-size: 4rem; color: var(--red-neon); margin-bottom: 20px; display: inline-block; animation: pulse-border 1.5s infinite alternate; text-shadow: 0 0 20px var(--red-neon); }
+        .logout-container h2 { font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 4vw, 2.5rem); color: #fff; margin-bottom: 15px; text-shadow: 0 0 10px var(--red-neon); }
         .logout-container p { font-size: 1.1rem; color: #ccc; margin-bottom: 40px; letter-spacing: 1px; }
         .logout-buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
-
-        .btn-yes, .btn-no {
-            padding: 15px 40px; font-size: 1.2rem; font-weight: 800; cursor: pointer;
-            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%); transition: 0.3s; letter-spacing: 2px;
-            font-family: 'Syne', sans-serif; border: none;
-        }
-
+        .btn-yes, .btn-no { padding: 15px 40px; font-size: 1.2rem; font-weight: 800; cursor: pointer; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%); transition: 0.3s; letter-spacing: 2px; font-family: 'Syne', sans-serif; border: none; }
         .btn-yes { background: var(--red-neon); color: #000; box-shadow: 0 0 20px rgba(255, 0, 60, 0.4); }
         .btn-yes:hover { background: #fff; box-shadow: 0 0 40px var(--red-neon); transform: scale(1.05); }
-
         .btn-no { background: transparent; color: var(--cyan); border: 2px solid var(--cyan); }
         .btn-no:hover { background: var(--cyan); color: #000; box-shadow: 0 0 40px var(--cyan); transform: scale(1.05); }
 
@@ -447,7 +371,7 @@
     </div>
 
     <script>
-        // --- Matrix ---
+        // --- Matrix Effect ---
         const canvas = document.getElementById('matrixCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
@@ -467,7 +391,7 @@
         setInterval(drawMatrix, 50);
         window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
 
-        // --- إدارة الجلسة (Session) وتسجيل الدخول ---
+        // --- Auth & Session (Frontend Only) ---
         const loginScreen = document.getElementById('loginScreen');
         const loginBox = document.getElementById('loginBox');
         const mainApp = document.getElementById('mainApp');
@@ -569,20 +493,18 @@
             }, 80);
         }
 
-        // --- التابات ---
+        // --- Tabs ---
         function switchTab(tabId, btnElement) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabId).classList.add('active'); btnElement.classList.add('active');
         }
 
-        // --- خروج (Logout Logic) ---
+        // --- Logout ---
         function doLogout() {
             localStorage.removeItem('lrz_session'); 
-            
             mainApp.classList.remove('show-app');
             loginScreen.style.display = 'flex';
-            
             setTimeout(() => {
                 loginScreen.classList.remove('hidden-screen');
                 apiKeyInput.value = "";
@@ -593,13 +515,12 @@
                 switchTab('mainTab', mainTabBtn);
             }, 100);
         }
-
         function cancelLogout() {
             const mainTabBtn = document.querySelector('.tab-btn:not(.logout-tab)');
             switchTab('mainTab', mainTabBtn);
         }
 
-        // --- اللوجيك الوهمي للأداة (Main App Simulation) ---
+        // --- Real Logic: Connect to Node.js Server ---
         const confirmBtn = document.getElementById('confirmBtn');
         const urlInput = document.getElementById('urlInput');
         const logContainer = document.getElementById('logContainer');
@@ -609,6 +530,10 @@
         const dlTxtBtn = document.getElementById('dlTxtBtn');
         const dlZipBtn = document.getElementById('dlZipBtn');
 
+        // Global vars to store real data
+        let realPageText = "";
+        let realTargetName = "";
+
         function typeLog(msg, type = 'info') {
             const div = document.createElement('div'); div.className = `log-line ${type}`; logContainer.appendChild(div); logContainer.scrollTop = logContainer.scrollHeight;
             let i = 0; const speed = 15;
@@ -616,66 +541,92 @@
             typeWriter();
         }
 
-        confirmBtn.addEventListener('click', () => {
+        confirmBtn.addEventListener('click', async () => {
             let url = urlInput.value.trim();
             if(!url) { typeLog("ERROR: No target URL specified.", "error"); return; }
             if(!url.startsWith('http')) url = 'https://' + url;
             
             logSection.classList.add('shake'); setTimeout(() => logSection.classList.remove('shake'), 500);
-            confirmBtn.disabled = true; confirmBtn.innerText = "Analyzing..."; fetchStatus.innerText = "PROCESSING"; fetchStatus.style.color = "#ffaa00"; logContainer.innerHTML = '';
-            
-            // إخفاء الزراير لحد ما يخلص
+            confirmBtn.disabled = true; confirmBtn.innerText = "Analyzing..."; 
+            fetchStatus.innerText = "PROCESSING"; fetchStatus.style.color = "#ffaa00"; 
+            logContainer.innerHTML = '';
             downloadActions.classList.remove('show');
+            realPageText = "";
+            realTargetName = url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
 
-            // استخراج اسم الموقع عشان يتحط في اسم الملف
-            let targetName = url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
-            
+            typeLog(`Connecting to local Node server...`, 'info');
             typeLog(`Target Acquired: ${url}`, 'info');
-            
-            let step = 0;
-            const interval = setInterval(() => {
-                step++;
-                if (step === 1) typeLog("Bypassing security protocols...", "success");
-                else if (step === 2) typeLog("Parsing DOM Tree..."); 
-                else if (step === 3) typeLog("Extracting JavaScript bundles...");
-                else if (step === 4) typeLog("Downloading static assets...");
-                else if (step === 5) typeLog("Packing files to ZIP...");
-                else if (step === 6) { 
-                    clearInterval(interval); 
-                    typeLog("Extraction Complete. Data saved locally.", "success"); 
-                    confirmBtn.disabled = false; confirmBtn.innerText = "Execute Target"; fetchStatus.innerText = "COMPLETED"; fetchStatus.style.color = "#00ffcc"; 
-                    
-                    // تحديث أسماء الزراير بالشكل الجديد
-                    dlTxtBtn.innerText = `${targetName}_deobf_by_!Lrz_x_!marawan.txt`;
-                    dlZipBtn.innerText = `${targetName}_deobf_by_!Lrz_x_!marawan.zip`;
 
-                    // إظهار زراير التحميل
-                    downloadActions.classList.add('show');
+            try {
+                // الاتصال بالسيرفر بتاعك (الـ Endpoint اللي انت عامله)
+                const response = await fetch('/api/site', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Server rejected the request.");
                 }
-            }, 800);
+
+                // السيرفر رجع داتا حقيقية
+                typeLog(`[SUCCESS] Server responded with Status: 200`, 'success');
+                realPageText = data.page.text; // الكود المصدري الحقيقي
+
+                // حساب الأرقام الحقيقية
+                let scriptsCount = data.assets.filter(a => a.url.includes('.js')).length;
+                let assetsCount = data.assets.length;
+                let kbSize = (new Blob([realPageText]).size / 1024).toFixed(2);
+
+                typeLog(`Parsing DOM Tree... Page size: ${kbSize} KB`, 'success');
+                typeLog(`Found ${scriptsCount} JS scripts and ${assetsCount} assets.`, 'success');
+
+                // تحديث الواجهة
+                document.getElementById('pagesCount').innerText = "1"; // صفحة واحدة رئيسية
+                document.getElementById('pagesBar').style.width = '100%';
+
+                document.getElementById('scriptsCount').innerText = scriptsCount;
+                document.getElementById('scriptsBar').style.width = (scriptsCount > 0 ? 100 : 0) + '%';
+
+                document.getElementById('assetsCount').innerText = assetsCount;
+                document.getElementById('assetsBar').style.width = (assetsCount > 0 ? 100 : 0) + '%';
+
+                document.getElementById('kbCount').innerText = kbSize;
+
+                // أسماء الملفات
+                const fileBase = `${realTargetName}_deobf_by_!Lrz_x_!marawan`;
+                dlTxtBtn.innerText = `${fileBase}.txt`;
+                dlZipBtn.innerText = `${fileBase}.zip`;
+
+                // إنهاء
+                confirmBtn.disabled = false; confirmBtn.innerText = "Execute Target"; 
+                fetchStatus.innerText = "COMPLETED"; fetchStatus.style.color = "#00ffcc"; 
+                downloadActions.classList.add('show');
+                typeLog("Extraction Complete. Data ready for download.", "success");
+
+            } catch (error) {
+                // لو السيرفر رفض أو حصل مشكلة
+                typeLog(`[ERROR] ${error.message}`, 'error');
+                confirmBtn.disabled = false; confirmBtn.innerText = "Execute Target";
+                fetchStatus.innerText = "FAILED"; fetchStatus.style.color = "#ff003c";
+            }
         });
 
-        // --- دالة التحميل (Download Files) ---
+        // --- Download Logic ---
         function downloadFile(type) {
-            let targetUrl = urlInput.value.trim();
-            let targetName = "target";
-            
-            if(targetUrl) {
-                // استخراج اسم الدومين فقط
-                targetName = targetUrl.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
+            if (!realPageText) {
+                alert("No data available. Please run a scan first.");
+                return;
             }
 
-            // اسم الملف بالشكل المطلوب
-            let filename = `${targetName}_deobf_by_!Lrz x !marawan.${type}`;
-            
-            let content = "";
+            let filename = `${realTargetName}_deobf_by_!Lrz x !marawan.${type}`;
+            let content = realPageText; // الكود الحقيقي اللي رجع من السيرفر
             let mimeType = "text/plain";
 
-            if (type === 'txt') {
-                content = `=== DEOBFUSCATION REPORT ===\n\nTarget: ${targetUrl}\nDeobfuscated By: !Lrz x !marawan\nStatus: COMPLETED\n\n[+] Extracted HTML Structure\n[+] Downloaded Assets (CSS, JS, IMAGES)\n[+] Bypassed Security\n\n(Simulation File - No real hacking was performed)`;
-            } else if (type === 'zip') {
-                // محتوى وهمي للملف المضغوط
-                content = "PK\x03\x04... (Simulated ZIP Binary Data for " + targetUrl + ") ...";
+            if (type === 'zip') {
+                // تحويل شكلي عشان يتحمل كملف zip
                 mimeType = "application/zip";
             }
 
@@ -692,7 +643,7 @@
             typeLog(`File downloaded: ${filename}`, 'success');
         }
 
-        // --- المولد والبلاك ليست (Generator) ---
+        // --- Generator & Blacklist (Frontend Only) ---
         function toggleDurationInput() {
             const type = document.getElementById('durationSelect').value;
             const input = document.getElementById('durationAmount');
