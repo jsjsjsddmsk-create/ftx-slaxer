@@ -1,8 +1,8 @@
 {
-  "name": "ftx-v50-source-inspector",
-  "version": "50.0.0",
-  "private": true,
-  "description": "FTX V50 multi-language static source inspector",
+  "name": "lrz-x-marawan-deobfuscator",
+  "version": "1.0.0",
+  "description": "Advanced Full-Stack Deobfuscator by LRZ X MARAWAN",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
