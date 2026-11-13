@@ -7,22 +7,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-        :root {
-            --red: #ff003c; --dark-red: #7a001a; --bg: #020000; --text: #e0e0e0;
-            --glass: rgba(10, 0, 5, 0.75); --border: rgba(255, 0, 60, 0.4); --cyan: #00ffcc;
-        }
+        :root { --red: #ff003c; --bg: #020000; --text: #e0e0e0; --glass: rgba(10, 0, 5, 0.75); --border: rgba(255, 0, 60, 0.4); --cyan: #00ffcc; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fira Code', monospace; }
-        body {
-            background-color: var(--bg); background-image: url('YOUR_DIRECT_IMAGE_LINK_HERE');
-            background-size: cover; background-position: center; background-attachment: fixed;
-            color: var(--text); min-height: 100vh; display: flex; flex-direction: column;
-            position: relative; overflow-x: hidden; overflow-y: auto;
-        }
+        body { background-color: var(--bg); background-image: url('YOUR_DIRECT_IMAGE_LINK_HERE'); background-size: cover; background-position: center; background-attachment: fixed; color: var(--text); min-height: 100vh; display: flex; flex-direction: column; position: relative; overflow-x: hidden; overflow-y: auto; }
         body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: -2; backdrop-filter: blur(5px); }
         #matrixCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.25; pointer-events: none; }
         body::after { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.5) 51%); background-size: 100% 4px; z-index: 10; pointer-events: none; opacity: 0.6; }
-
-        /* Login Screen */
         #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; display: flex; justify-content: center; align-items: center; z-index: 100; padding: 20px; transition: opacity 0.5s ease; }
         .login-box { background: var(--glass); border: 1px solid var(--border); padding: 40px 30px; width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 25px; text-align: center; clip-path: polygon(0 0, 100% 0, 100% 90%, 95% 100%, 0 100%); backdrop-filter: blur(15px); box-shadow: 0 0 50px rgba(255, 0, 60, 0.1); margin: auto; }
         .logo-glitch { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 6vw, 3.5rem); font-weight: 800; text-transform: uppercase; color: #fff; text-shadow: 0 0 10px var(--red); position: relative; letter-spacing: 2px; }
@@ -30,39 +20,26 @@
         .input-group input:focus { border-color: var(--red); box-shadow: 0 0 20px rgba(255, 0, 60, 0.4); }
         .login-btn { background: var(--red); color: #000; border: none; padding: 20px; font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; cursor: pointer; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%); transition: 0.3s; }
         .login-btn:hover { background: #fff; box-shadow: 0 0 40px var(--red); }
-        .hidden-screen { opacity: 0; visibility: hidden; pointer-events: none; }
-        .auth-error { background: #fff !important; color: var(--red) !important; }
-
-        /* Obfuscation Screen */
-        #obfuscationScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: #000; z-index: 200; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .obf-text { color: var(--red); font-family: 'Syne', sans-serif; font-size: clamp(1.5rem, 5vw, 3rem); font-weight: 800; letter-spacing: 3px; text-shadow: 0 0 20px var(--red); animation: pulse 1s infinite alternate; }
-
-        /* Main App */
         #mainApp { display: none; flex-direction: column; min-height: 100vh; z-index: 20; width: 100%; }
         header { padding: 30px 20px 20px; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--border); margin: 0 20px; flex-wrap: wrap; gap: 10px; }
         header h1 { font-family: 'Syne', sans-serif; font-size: 2rem; color: #fff; text-shadow: 0 0 10px var(--red); }
         .status-indicator { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: var(--red); font-weight: 600; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid var(--border); }
         .blink-dot { width: 10px; height: 10px; background: var(--red); border-radius: 50%; box-shadow: 0 0 10px var(--red); animation: blink 1s infinite alternate; }
-
         .tabs-nav { display: flex; justify-content: center; gap: 10px; margin: 20px auto 0; padding: 0 20px; flex-wrap: wrap; }
         .tab-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 12px 30px; font-size: 1rem; font-weight: 600; text-transform: uppercase; cursor: pointer; transition: 0.3s; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%); font-family: 'Syne', sans-serif; }
         .tab-btn.active { background: rgba(255, 0, 60, 0.15); color: var(--red); border-color: var(--red); box-shadow: 0 0 20px rgba(255, 0, 60, 0.3); }
         .tab-btn.logout-tab { border-color: #555; color: #888; }
         .tab-btn.logout-tab:hover { border-color: var(--red); color: var(--red); }
-
         .tab-content { display: none; flex: 1; padding: 20px; gap: 20px; max-width: 1600px; margin: 0 auto; width: 100%; animation: fadeIn 0.5s ease; }
         .tab-content.active { display: grid; grid-template-columns: 1fr; }
         @media (min-width: 900px) { .tab-content.active { grid-template-columns: 1fr 1fr; padding: 40px; } }
         #logoutTab.active { display: flex; justify-content: center; align-items: center; }
-
         .control-section { display: flex; flex-direction: column; gap: 20px; }
         .glass-box { background: var(--glass); border: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; gap: 20px; clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%); backdrop-filter: blur(10px); }
-        
         .input-area { padding: 5px; display: flex; flex-direction: column; gap: 5px; background: var(--glass); border: 1px solid var(--border); clip-path: polygon(0 0, 100% 0, 97% 100%, 0% 100%); }
         .input-area input { background: rgba(0,0,0,0.8); border: none; padding: 18px 20px; color: #fff; font-size: 1.1rem; outline: none; }
         .action-btn { background: var(--red); color: #000; border: none; padding: 18px; font-size: 1rem; font-weight: 700; text-transform: uppercase; cursor: pointer; clip-path: polygon(3% 0, 100% 0, 97% 100%, 0% 100%); transition: 0.3s; }
         .action-btn:hover { background: #fff; box-shadow: 0 0 30px var(--red); }
-
         .stat-row { display: flex; flex-direction: column; gap: 8px; }
         .stat-info { display: flex; justify-content: space-between; font-size: 0.85rem; text-transform: uppercase; }
         .stat-val { color: var(--red); font-weight: 700; }
@@ -70,24 +47,19 @@
         .stat-bar-fill { height: 100%; width: 0%; background: var(--red); box-shadow: 0 0 15px var(--red); transition: width 0.6s ease; }
         .total-download-box { margin-top: 10px; background: rgba(255, 0, 60, 0.1); border: 1px solid var(--red); padding: 15px; display: flex; justify-content: space-between; align-items: center; clip-path: polygon(0 0, 100% 0, 100% 100%, 5% 100%); }
         .total-download-box span:last-child { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: #fff; }
-
         .download-actions { display: none; gap: 10px; margin-top: 15px; }
         .download-actions.show { display: flex; }
         .dl-btn { flex: 1; background: rgba(0,0,0,0.6); border: 1px solid var(--cyan); color: var(--cyan); padding: 12px; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.3s; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .dl-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan); }
         .dl-btn.zip-btn { border-color: var(--red); color: var(--red); }
         .dl-btn.zip-btn:hover { background: var(--red); box-shadow: 0 0 20px var(--red); }
-
         .code-viewer-container { background: var(--glass); border: 1px solid var(--border); clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%); overflow: hidden; }
         .code-viewer-header { background: rgba(255, 0, 60, 0.15); padding: 10px 15px; font-size: 0.8rem; color: var(--red); font-weight: 700; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); }
         .code-viewer-content { padding: 15px; color: var(--cyan); font-size: 0.85rem; line-height: 1.5; max-height: 250px; overflow-y: auto; white-space: pre-wrap; background: #030000; }
-        
         .log-section { display: flex; flex-direction: column; min-height: 400px; background: var(--glass); border: 1px solid var(--border); clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%); }
         .log-header { padding: 15px 20px; background: rgba(255, 0, 60, 0.15); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; color: var(--red); font-size: 0.8rem; }
         .log-content { flex: 1; padding: 20px; overflow-y: auto; font-size: 0.9rem; line-height: 1.6; display: flex; flex-direction: column; gap: 8px; }
         .log-line.success { color: var(--cyan); } .log-line.error { color: var(--red); } .log-line.info { color: #ffaa00; }
-
-        /* Generator Styles */
         .form-group { display: flex; flex-direction: column; gap: 8px; }
         .input-row { display: flex; gap: 10px; }
         .custom-select, .custom-input { flex: 1; background: rgba(0,0,0,0.8); border: 1px solid var(--border); color: #fff; padding: 15px; outline: none; }
@@ -98,34 +70,67 @@
         .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--red); box-shadow: 0 0 15px var(--red); }
         input:checked + .slider:before { transform: translateX(26px); }
-
         .copy-btn { background: var(--cyan); color: #000; border: none; padding: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; margin-top: 10px; }
         .copy-btn:hover { background: #fff; box-shadow: 0 0 20px var(--cyan); }
-
         .logout-container { background: var(--glass); border: 2px solid var(--red); padding: 50px 40px; text-align: center; max-width: 600px; width: 100%; clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%); }
         .warning-icon { font-size: 4rem; color: var(--red); margin-bottom: 20px; animation: pulse 1.5s infinite alternate; }
         .logout-buttons { display: flex; gap: 20px; justify-content: center; margin-top: 30px; }
         .btn-yes, .btn-no { padding: 15px 40px; font-size: 1.2rem; font-weight: 800; cursor: pointer; border: none; }
         .btn-yes { background: var(--red); color: #000; } .btn-no { background: transparent; color: var(--cyan); border: 2px solid var(--cyan); }
-
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        @keyframes pulse { from { text-shadow: 0 0 10px var(--red); } to { text-shadow: 0 0 30px var(--red), 0 0 50px var(--dark-red); } }
+        @keyframes pulse { from { text-shadow: 0 0 10px var(--red); } to { text-shadow: 0 0 30px var(--red); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
     <canvas id="matrixCanvas"></canvas>
 
-    <div id="obfuscationScreen">
-        <div class="obf-text" id="obfText"></div>
-    </div>
+    <!-- الكود السري اللي هيتحط في الـ ZIP (عشان يطلع كامل وميتكسرش) -->
+    <script type="text/plain" id="server-js-code">
+'use strict';
+const http = require('node:http'), fs = require('node:fs'), path = require('node:path');
+const dns = require('node:dns').promises, net = require('node:net');
+const PORT = Number(process.env.PORT || 3000), INDEX = path.join(__dirname, 'index.html'), DB_FILE = path.join(__dirname, 'database.json');
+const MAX_BODY = 12000, MAX_BYTES = 2 * 1024 * 1024, TIMEOUT = 10000, MAX_ASSETS = 12, limits = new Map();
+let db = { keys: {}, blacklist: [] };
+if (fs.existsSync(DB_FILE)) { try { db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8')); } catch (e) {} }
+function saveDB() { fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2)); }
+function private4(ip){const p=ip.split('.').map(Number);if(p.length!==4||p.some(n=>!Number.isInteger(n)||n<0||n>255))return true;const[a,b]=p;return a===0||a===10||a===127||a>=224||(a===100&&b>=64&&b<=127)||(a===169&&b===254)||(a===172&&b>=16&&b<=31)||(a===192&&b===168)||(a===192&&b===0)||(a===198&&(b===18||b===19));}
+function private6(ip){const x=ip.toLowerCase().split('%')[0];return x==='::'||x==='::1'||x.startsWith('fc')||x.startsWith('fd')||/^fe[89ab]/.test(x)||x.startsWith('ff')||x.startsWith('::ffff:');}
+async function publicOnly(u){if(!['http:','https:'].includes(u.protocol)||u.username||u.password)throw Error('Only public HTTP/HTTPS URLs without credentials are allowed.');const h=u.hostname.toLowerCase().replace(/^\[|\]$/g,'');if(!h||h==='localhost'||h.endsWith('.local')||h.endsWith('.localhost'))throw Error('Local destinations are blocked.');const f=net.isIP(h);if(f===4&&private4(h)||f===6&&private6(h))throw Error('Private or reserved IP blocked.');if(!f){const rs=await dns.lookup(h,{all:true});if(!rs.length||rs.some(r=>r.family===4?private4(r.address):private6(r.address)))throw Error('Hostname resolves to a private address.');}}
+function send(res,s,obj){res.writeHead(s,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(obj));}
+function rate(req,res){const k=req.socket.remoteAddress||'unknown',n=Date.now();let v=limits.get(k)||{start:n,count:0};if(n-v.start>60000)v={start:n,count:0};v.count++;limits.set(k,v);if(v.count>30){send(res,429,{error:'Rate limit reached.'});return true;}return false;}
+async function fetchText(raw){let u=new URL(raw);for(let i=0;i<=4;i++){await publicOnly(u);const c=new AbortController(),timer=setTimeout(()=>c.abort(),TIMEOUT);let r;try{r=await fetch(u,{redirect:'manual',signal:c.signal,headers:{'User-Agent':'Mozilla/5.0','Accept':'text/html,application/javascript'}});}finally{clearTimeout(timer);}if([301,302,303,307,308].includes(r.status)){if(i===4)throw Error('Redirect limit reached.');const loc=r.headers.get('location');if(!loc)throw Error('Redirect location missing.');u=new URL(loc,u);continue;}if(!r.ok)throw Error('Remote HTTP '+r.status);const type=r.headers.get('content-type')||'';if(!/(text\/|javascript|json|xml|svg)/i.test(type))throw Error('Unsupported content type: '+type);if(Number(r.headers.get('content-length')||0)>MAX_BYTES)throw Error('Resource exceeds 2 MB.');const rd=r.body.getReader(),parts=[];let size=0;while(true){const{done,value}=await rd.read();if(done)break;size+=value.byteLength;if(size>MAX_BYTES){await rd.cancel();throw Error('Resource exceeds 2 MB.');}parts.push(Buffer.from(value));}return{text:Buffer.concat(parts).toString('utf8'),url:u.href,status:r.status,type};}throw Error('Redirect failed.');}
+function readBody(req){return new Promise((ok,no)=>{let s='';req.on('data',c=>{s+=c.toString();if(Buffer.byteLength(s)>MAX_BODY){no(Error('Request too large.'));req.destroy();}});req.on('end',()=>ok(s));req.on('error',no);});}
+function assetsOf(html,base){const set=new Set(),re=/<script\b[^>]*\bsrc\s*=\s*["']([^"']+)["']|<link\b[^>]*\bhref\s*=\s*["']([^"']+)["']/gi;let m;while((m=re.exec(html))&&set.size<MAX_ASSETS){try{const u=new URL(m[1]||m[2],base);if(u.origin===new URL(base).origin&&/\.(js|mjs|css)(?:$|\?)/i.test(u.pathname+u.search))set.add(u.href);}catch{}}return[...set];}
+const app = http.createServer(async (req, res) => {
+    const p = new URL(req.url, 'http://localhost').pathname;
+    if (req.method === 'GET' && (p === '/' || p === '/index.html')) { return fs.readFile(INDEX, (e, b) => { if (e) { res.writeHead(500); return res.end('index.html missing'); } res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'}); res.end(b); }); }
+    if (req.method === 'POST' && p === '/api/site') { if (rate(req, res)) return; try { const x = JSON.parse(await readBody(req) || '{}'); if (typeof x.url !== 'string' || x.url.length > 2048) return send(res, 400, {error: 'Invalid URL'}); let u; try { u = new URL(x.url); } catch { return send(res, 400, {error: 'Invalid URL.'}); } const page = await fetchText(u.href); const assets = []; for (const link of assetsOf(page.text, page.url)) { try { assets.push(await fetchText(link)); } catch (e) { assets.push({url: link, error: e.message}); } } return send(res, 200, {page, assets}); } catch (e) { return send(res, e.name === 'AbortError' ? 504 : 502, {error: e.message}); } }
+    if (req.method === 'POST' && p === '/api/auth') { try { const { key } = JSON.parse(await readBody(req) || '{}'); if (!key) return send(res, 400, { error: 'Key required' }); const OWNER_KEY = "!LRZ X !MARAWAN-976&$"; if (key === OWNER_KEY) return send(res, 200, { success: true }); if (db.blacklist.includes(key)) return send(res, 403, { error: 'BLACKLISTED' }); if (db.keys[key]) { if (Date.now() < db.keys[key].expiry) return send(res, 200, { success: true }); else { delete db.keys[key]; saveDB(); return send(res, 403, { error: 'EXPIRED' }); } } return send(res, 403, { error: 'Invalid Key' }); } catch (e) { return send(res, 500, { error: 'Error' }); } }
+    if (req.method === 'POST' && p === '/api/generate') { try { const { type, amount, hwid } = JSON.parse(await readBody(req) || '{}'); let expiry = Date.now(); if (type === 'DAYS') expiry += (amount * 86400000); else if (type === 'HOURS') expiry += (amount * 3600000); else expiry += (99 * 31536000000); const r = Math.random().toString(36).substring(2, 8).toUpperCase(), tag = hwid ? "LOCK" : "FREE", fullKey = `http://lrz-x-marawan.com/key?auth=LRZ_X_MARAWAN_${r}_${tag}`; db.keys[fullKey] = { expiry }; saveDB(); return send(res, 200, { success: true, key: fullKey }); } catch (e) { return send(res, 500, { error: 'Error' }); } }
+    if (req.method === 'POST' && p === '/api/blacklist') { const { key } = JSON.parse(await readBody(req) || '{}'); if (key && !db.blacklist.includes(key)) { db.blacklist.push(key); saveDB(); } return send(res, 200, { success: true, blacklist: db.blacklist }); }
+    if (req.method === 'POST' && p === '/api/unblacklist') { const { key } = JSON.parse(await readBody(req) || '{}'); db.blacklist = db.blacklist.filter(k => k !== key); saveDB(); return send(res, 200, { success: true, blacklist: db.blacklist }); }
+    if (req.method === 'GET' && p === '/api/blacklist') { return send(res, 200, { blacklist: db.blacklist }); }
+    res.writeHead(404); res.end('Not Found');
+});
+app.listen(PORT, '0.0.0.0', () => console.log('Server running on port ' + PORT));
+    </script>
+
+    <script type="text/plain" id="package-json-code">
+{
+  "name": "lrz-x-marawan",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=20" }
+}
+    </script>
 
     <div id="loginScreen">
         <div class="login-box">
             <div class="logo-glitch">𝑳𝑹𝒁 𝑿 !𝑴𝑨𝑹𝑨𝑾𝑨𝑵</div>
-            <div class="input-group">
-                <input type="text" id="apiKeyInput" placeholder="Paste API Key or Script here...">
-            </div>
+            <div class="input-group"><input type="text" id="apiKeyInput" placeholder="Paste API Key or Script here..."></div>
             <button id="continueBtn" class="login-btn">CONTINUE</button>
         </div>
     </div>
@@ -173,36 +178,16 @@
             <section class="control-section">
                 <div class="glass-box">
                     <h2 style="color:#fff; border-bottom: 1px solid var(--border); padding-bottom: 10px;">KEY GENERATOR</h2>
-                    <div class="form-group">
-                        <label>DURATION</label>
-                        <div class="input-row">
-                            <select class="custom-select" id="durationSelect">
-                                <option value="DAYS">DAYS</option><option value="HOURS">HOURS</option><option value="LIFETIME">LIFETIME</option>
-                            </select>
-                            <input type="number" id="durationAmount" class="custom-input" min="1" value="1" placeholder="Qty">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>HWID LOCK</label>
-                        <div class="toggle-container">
-                            <span style="font-size: 0.9rem; color: #aaa;">Enable HWID?</span>
-                            <label class="switch"><input type="checkbox" id="hwidToggle"><span class="slider"></span></label>
-                        </div>
-                    </div>
+                    <div class="form-group"><label>DURATION</label><div class="input-row"><select class="custom-select" id="durationSelect"><option value="DAYS">DAYS</option><option value="HOURS">HOURS</option><option value="LIFETIME">LIFETIME</option></select><input type="number" id="durationAmount" class="custom-input" min="1" value="1"></div></div>
+                    <div class="form-group"><label>HWID LOCK</label><div class="toggle-container"><span>Enable?</span><label class="switch"><input type="checkbox" id="hwidToggle"><span class="slider"></span></label></div></div>
                     <button class="action-btn" onclick="generateKey()">GENERATE KEY</button>
-                    <div id="keyResultArea" style="display:none; margin-top: 15px;">
-                        <div class="code-viewer-content" id="generatedCodeDisplay"></div>
-                        <button id="copyKeyBtn" class="copy-btn">COPY SCRIPT</button>
-                    </div>
+                    <div id="keyResultArea" style="display:none; margin-top: 15px;"><div class="code-viewer-content" id="generatedCodeDisplay"></div><button id="copyKeyBtn" class="copy-btn">COPY SCRIPT</button></div>
                 </div>
             </section>
             <section class="control-section">
                 <div class="glass-box">
                     <h2 style="color: var(--red); border-bottom: 1px solid var(--border); padding-bottom: 10px;">BLACKLIST</h2>
-                    <div class="input-row">
-                        <input type="text" id="blInput" class="custom-input" placeholder="appkey=..." style="flex: 2;">
-                        <button class="action-btn" onclick="addBlacklist()" style="flex: 1; padding: 15px;">BLACKLIST</button>
-                    </div>
+                    <div class="input-row"><input type="text" id="blInput" class="custom-input" placeholder="appkey=..." style="flex: 2;"><button class="action-btn" onclick="addBlacklist()" style="flex: 1; padding: 15px;">BLACKLIST</button></div>
                     <div class="unblacklist-list" id="blList" style="margin-top: 15px; max-height: 200px; overflow-y: auto;"></div>
                 </div>
             </section>
@@ -222,212 +207,75 @@
     </div>
 
     <script>
-        // Matrix Background
         const canvas = document.getElementById('matrixCanvas'), ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*", fontSize = 16, columns = canvas.width / fontSize, drops = [];
         for (let x = 0; x < columns; x++) drops[x] = 1;
-        function drawMatrix() {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.05)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#ff003c"; ctx.font = fontSize + "px monospace";
-            for (let i = 0; i < drops.length; i++) {
-                const text = letters[Math.floor(Math.random() * letters.length)];
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
-            }
-        }
+        function drawMatrix() { ctx.fillStyle = "rgba(0, 0, 0, 0.05)"; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = "#ff003c"; ctx.font = fontSize + "px monospace"; for (let i = 0; i < drops.length; i++) { const text = letters[Math.floor(Math.random() * letters.length)]; ctx.fillText(text, i * fontSize, drops[i] * fontSize); if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0; drops[i]++; } }
         setInterval(drawMatrix, 50);
 
-        // Elements
-        const loginScreen = document.getElementById('loginScreen');
-        const mainApp = document.getElementById('mainApp');
-        const continueBtn = document.getElementById('continueBtn');
-        const apiKeyInput = document.getElementById('apiKeyInput');
-        const obfuscationScreen = document.getElementById('obfuscationScreen');
-        const logContainer = document.getElementById('logContainer');
+        const loginScreen = document.getElementById('loginScreen'), mainApp = document.getElementById('mainApp'), continueBtn = document.getElementById('continueBtn'), logContainer = document.getElementById('logContainer');
+        function typeLog(msg, type = 'info') { const div = document.createElement('div'); div.className = `log-line ${type}`; logContainer.appendChild(div); logContainer.scrollTop = logContainer.scrollHeight; let i = 0; function type() { if (i < msg.length) { div.innerText += msg.charAt(i); i++; setTimeout(type, 15); } } type(); }
 
-        function typeLog(msg, type = 'info') {
-            const div = document.createElement('div'); div.className = `log-line ${type}`; logContainer.appendChild(div); logContainer.scrollTop = logContainer.scrollHeight;
-            let i = 0; function type() { if (i < msg.length) { div.innerText += msg.charAt(i); i++; setTimeout(type, 15); } }
-            type();
-        }
-
-        // --- 1. Authentication (Real API) ---
         continueBtn.addEventListener('click', async () => {
-            let rawKey = apiKeyInput.value.trim();
-            if (!rawKey) return;
-            let keyToCheck = rawKey;
-            if (rawKey.includes('http')) { const match = rawKey.match(/http[^"\s]+/); if (match) keyToCheck = match[0]; }
-
+            let rawKey = document.getElementById('apiKeyInput').value.trim(); if (!rawKey) return;
+            let keyToCheck = rawKey.includes('http') ? rawKey.match(/http[^"\s]+/)[0] : rawKey;
             continueBtn.innerText = "AUTHENTICATING...";
-            
             try {
-                const res = await fetch('/api/auth', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ key: keyToCheck })
-                });
+                const res = await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: keyToCheck }) });
                 const data = await res.json();
-
-                if (res.ok) {
-                    continueBtn.innerText = "ACCESS GRANTED"; continueBtn.style.background = "var(--cyan)";
-                    setTimeout(() => {
-                        loginScreen.style.display = 'none';
-                        if (keyToCheck.startsWith('http')) {
-                            obfuscationScreen.style.display = 'flex';
-                            let text = "THIS APP LINK WAS OBFUSCATED", i = 0;
-                            document.getElementById('obfText').innerHTML = '';
-                            let int = setInterval(() => {
-                                document.getElementById('obfText').innerHTML += text.charAt(i); i++;
-                                if (i === text.length) { clearInterval(int); setTimeout(() => { obfuscationScreen.style.display = 'none'; mainApp.style.display = 'flex'; }, 1500); }
-                            }, 50);
-                        } else { mainApp.style.display = 'flex'; }
-                    }, 1000);
-                } else {
-                    throw new Error(data.error);
-                }
-            } catch (err) {
-                continueBtn.innerText = "ACCESS DENIED"; continueBtn.style.background = "var(--red)"; continueBtn.style.color = "#fff";
-                setTimeout(() => { continueBtn.innerText = "CONTINUE"; continueBtn.style.background = ""; continueBtn.style.color = ""; }, 2000);
-            }
+                if (res.ok) { continueBtn.innerText = "ACCESS GRANTED"; continueBtn.style.background = "var(--cyan)"; setTimeout(() => { loginScreen.style.display = 'none'; mainApp.style.display = 'flex'; }, 1000); }
+                else throw new Error(data.error);
+            } catch (err) { continueBtn.innerText = "ACCESS DENIED"; continueBtn.style.background = "var(--red)"; continueBtn.style.color = "#fff"; setTimeout(() => { continueBtn.innerText = "CONTINUE"; continueBtn.style.background = ""; continueBtn.style.color = ""; }, 2000); }
         });
 
-        // --- 2. Tabs & Logout ---
-        function switchTab(tabId, btn) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active'); btn.classList.add('active');
-            if (tabId === 'generatorTab') loadBlacklist();
-        }
+        function switchTab(tabId, btn) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(tabId).classList.add('active'); btn.classList.add('active'); if (tabId === 'generatorTab') loadBlacklist(); }
         function doLogout() { location.reload(); }
 
-        // --- 3. Main Scraper Logic ---
         let realPageText = "", realTargetName = "";
         document.getElementById('confirmBtn').addEventListener('click', async () => {
-            let url = document.getElementById('urlInput').value.trim();
-            if(!url) return;
-            if(!url.startsWith('http')) url = 'https://' + url;
-            
-            document.getElementById('confirmBtn').disabled = true;
-            document.getElementById('confirmBtn').innerText = "Analyzing...";
-            logContainer.innerHTML = ''; realTargetName = url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
-
+            let url = document.getElementById('urlInput').value.trim(); if(!url) return; if(!url.startsWith('http')) url = 'https://' + url;
+            document.getElementById('confirmBtn').disabled = true; document.getElementById('confirmBtn').innerText = "Analyzing..."; logContainer.innerHTML = ''; realTargetName = url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
             try {
-                const response = await fetch('/api/site', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: url })
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error);
-
+                const response = await fetch('/api/site', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: url }) });
+                const data = await response.json(); if (!response.ok) throw new Error(data.error);
                 realPageText = data.page.text; 
-                let scriptsCount = data.assets.filter(a => a.url.includes('.js')).length;
-                let kbSize = (new Blob([realPageText]).size / 1024).toFixed(2);
-
+                let scriptsCount = data.assets.filter(a => a.url.includes('.js')).length, kbSize = (new Blob([realPageText]).size / 1024).toFixed(2);
                 document.getElementById('pagesCount').innerText = "1"; document.getElementById('pagesBar').style.width = '100%';
                 document.getElementById('scriptsCount').innerText = scriptsCount; document.getElementById('scriptsBar').style.width = '100%';
                 document.getElementById('assetsCount').innerText = data.assets.length; document.getElementById('assetsBar').style.width = '100%';
                 document.getElementById('kbCount').innerText = kbSize;
-
-                document.getElementById('dlTxtBtn').innerText = `${realTargetName}_deobf_by_!Lrz_x_!marawan.txt`;
-                document.getElementById('dlZipBtn').innerText = `${realTargetName}_deobf_by_!Lrz_x_!marawan.zip`;
-                
-                // Update Code Viewer
+                document.getElementById('dlTxtBtn').innerText = `${realTargetName}_deobf_by_!Lrz_x_!marawan.txt`; document.getElementById('dlZipBtn').innerText = `${realTargetName}_deobf_by_!Lrz_x_!marawan.zip`;
                 const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
                 document.getElementById('rawCodeOutput').innerHTML = `local appkey = "appkey=LRZ_X_MARAWAN_${randomStr}_LOCK"\n-- Target: ${url}\n-- Status: Active | HWID: LOCKED\nloadstring(game:HttpGet("http://lrz-x-marawan.com/loader.lua"))()`;
-                document.getElementById('codeStatus').innerText = "PAYLOAD READY";
-                
-                document.getElementById('downloadActions').classList.add('show');
-                typeLog("Extraction Complete. Ready for download.", "success");
-            } catch (error) {
-                typeLog(`[ERROR] ${error.message}`, 'error');
-                document.getElementById('rawCodeOutput').innerText = `-- ERROR: ${error.message}`;
-            } finally {
-                document.getElementById('confirmBtn').disabled = false;
-                document.getElementById('confirmBtn').innerText = "Execute Target";
-            }
+                document.getElementById('codeStatus').innerText = "PAYLOAD READY"; document.getElementById('downloadActions').classList.add('show'); typeLog("Extraction Complete. Ready for download.", "success");
+            } catch (error) { typeLog(`[ERROR] ${error.message}`, 'error'); } finally { document.getElementById('confirmBtn').disabled = false; document.getElementById('confirmBtn').innerText = "Execute Target"; }
         });
 
-        // --- 4. Real ZIP Download ---
-        async function downloadTxt() {
-            if (!realPageText) return;
-            const blob = new Blob([realPageText], { type: "text/plain" });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${realTargetName}_deobf_by_!Lrz x !marawan.txt`; a.click();
-        }
-
+        async function downloadTxt() { if (!realPageText) return; const blob = new Blob([realPageText], { type: "text/plain" }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${realTargetName}_deobf_by_!Lrz x !marawan.txt`; a.click(); }
         async function downloadZip() {
             if (!realPageText) return;
             const btn = document.getElementById('dlZipBtn'); btn.innerText = "PACKAGING...";
-            
             const zip = new JSZip();
-            
-            // 1. The Backend (server.js)
-            const serverJs = `'use strict';\nconst http=require('node:http'),fs=require('node:fs'),path=require('node:path'),dns=require('node:dns').promises,net=require('node:net');\n// [Server code here - Please replace with your full server.js code]\n// This is a placeholder for the ZIP file.`;
-            zip.file("server.js", serverJs);
-            
-            // 2. The Package.json
-            zip.file("package.json", JSON.stringify({ name: "deobfuscator", version: "1.0.0", scripts: { start: "node server.js" } }, null, 2));
-            
-            // 3. The Frontend (Current page)
+            zip.file("server.js", document.getElementById('server-js-code').textContent.trim());
+            zip.file("package.json", document.getElementById('package-json-code').textContent.trim());
             zip.file("index.html", document.documentElement.outerHTML);
-            
-            // 4. The Scraped Data
             zip.file(`${realTargetName}_source.txt`, realPageText);
-            zip.file("readme.md", `# DEOBFUSCATED BY LRZ X MARAWAN\n\nTarget: ${realTargetName}\nStatus: Success`);
-
+            zip.file("readme.md", `# LRZ X MARAWAN\nTarget: ${realTargetName}\nSize: ${(new Blob([realPageText]).size / 1024).toFixed(2)} KB`);
             const content = await zip.generateAsync({ type: "blob" });
             const a = document.createElement('a'); a.href = URL.createObjectURL(content); a.download = `${realTargetName}_deobf_by_!Lrz x !marawan.zip`; a.click();
             btn.innerText = `${realTargetName}_deobf_by_!Lrz_x_!marawan.zip`;
         }
 
-        // --- 5. Real Generator & Blacklist APIs ---
         async function generateKey() {
-            const type = document.getElementById('durationSelect').value;
-            const amount = document.getElementById('durationAmount').value;
-            const hwid = document.getElementById('hwidToggle').checked;
-
-            const res = await fetch('/api/generate', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type, amount, hwid })
-            });
+            const type = document.getElementById('durationSelect').value, amount = document.getElementById('durationAmount').value, hwid = document.getElementById('hwidToggle').checked;
+            const res = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, amount, hwid }) });
             const data = await res.json();
-            
-            if (data.success) {
-                document.getElementById('keyResultArea').style.display = 'block';
-                document.getElementById('generatedCodeDisplay').innerHTML = `local appkey = "${data.key}"\n-- Auth Status: Active | HWID: ${hwid ? 'LOCKED' : 'UNLOCKED'}`;
-                document.getElementById('copyKeyBtn').onclick = () => navigator.clipboard.writeText(data.key);
-            }
+            if (data.success) { document.getElementById('keyResultArea').style.display = 'block'; document.getElementById('generatedCodeDisplay').innerHTML = `local appkey = "${data.key}"\n-- HWID: ${hwid ? 'LOCKED' : 'UNLOCKED'}`; document.getElementById('copyKeyBtn').onclick = () => navigator.clipboard.writeText(data.key); }
         }
-
-        async function addBlacklist() {
-            const key = document.getElementById('blInput').value.trim();
-            if (!key) return;
-            const res = await fetch('/api/blacklist', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ key })
-            });
-            const data = await res.json();
-            if (data.success) { document.getElementById('blInput').value = ''; loadBlacklist(); }
-        }
-
-        async function loadBlacklist() {
-            const res = await fetch('/api/blacklist');
-            const data = await res.json();
-            const list = document.getElementById('blList');
-            list.innerHTML = '';
-            if (data.blacklist.length === 0) list.innerHTML = '<div style="color: #666; font-size: 0.8rem;">No keys blacklisted.</div>';
-            data.blacklist.forEach(k => {
-                list.innerHTML += `<div style="display:flex; justify-content:space-between; background:rgba(255,0,60,0.1); padding:10px; margin-bottom:5px; border:1px solid var(--border); font-size:0.8rem;">
-                    <span>${k}</span>
-                    <button onclick="removeBlacklist('${k}')" style="background:none; border:none; color:#fff; cursor:pointer;">REMOVE</button>
-                </div>`;
-            });
-        }
-
-        async function removeBlacklist(key) {
-            await fetch('/api/unblacklist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key }) });
-            loadBlacklist();
-        }
+        async function addBlacklist() { const key = document.getElementById('blInput').value.trim(); if (!key) return; await fetch('/api/blacklist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key }) }); document.getElementById('blInput').value = ''; loadBlacklist(); }
+        async function loadBlacklist() { const res = await fetch('/api/blacklist'); const data = await res.json(); const list = document.getElementById('blList'); list.innerHTML = ''; if (data.blacklist.length === 0) list.innerHTML = '<div style="color: #666; font-size: 0.8rem;">No keys blacklisted.</div>'; data.blacklist.forEach(k => { list.innerHTML += `<div style="display:flex; justify-content:space-between; background:rgba(255,0,60,0.1); padding:10px; margin-bottom:5px; border:1px solid var(--border); font-size:0.8rem;"><span>${k}</span><button onclick="removeBlacklist('${k}')" style="background:none; border:none; color:#fff; cursor:pointer;">REMOVE</button></div>`; }); }
+        async function removeBlacklist(key) { await fetch('/api/unblacklist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key }) }); loadBlacklist(); }
     </script>
 </body>
 </html>
