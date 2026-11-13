@@ -3,380 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>𝑳𝑹𝒁 𝑿 !𝑴𝑨𝑹𝑨𝑾𝑨𝑵 | Secure Access</title>
-    
+    <title>𝑳𝑹𝒁 𝑿 !𝑴𝑨𝑹𝑨𝑾𝑨𝑵 | Core System</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         :root {
-            --red-neon: #ff003c;
-            --red-dark: #7a001a;
-            --bg: #020000;
-            --text: #e0e0e0;
-            --glass: rgba(10, 0, 5, 0.75);
-            --border: rgba(255, 0, 60, 0.4);
-            --cyan: #00ffcc;
+            --red: #ff003c; --dark-red: #7a001a; --bg: #020000; --text: #e0e0e0;
+            --glass: rgba(10, 0, 5, 0.75); --border: rgba(255, 0, 60, 0.4); --cyan: #00ffcc;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fira Code', monospace; }
-
         body {
-            background-color: var(--bg);
-            background-image: url('YOUR_DIRECT_IMAGE_LINK_HERE'); /* ضع رابط الصورة المباشر هنا */
+            background-color: var(--bg); background-image: url('YOUR_DIRECT_IMAGE_LINK_HERE');
             background-size: cover; background-position: center; background-attachment: fixed;
             color: var(--text); min-height: 100vh; display: flex; flex-direction: column;
             position: relative; overflow-x: hidden; overflow-y: auto;
         }
-
-        body::before {
-            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); z-index: -2; backdrop-filter: blur(5px);
-        }
-
+        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: -2; backdrop-filter: blur(5px); }
         #matrixCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.25; pointer-events: none; }
-
-        body::after {
-            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.5) 51%);
-            background-size: 100% 4px; z-index: 10; pointer-events: none; opacity: 0.6;
-        }
+        body::after { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.5) 51%); background-size: 100% 4px; z-index: 10; pointer-events: none; opacity: 0.6; }
 
         /* Login Screen */
-        #loginScreen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 100; padding: 20px; transition: opacity 0.5s ease, visibility 0.5s;
-            overflow-y: auto;
-        }
-
-        .login-box {
-            background: var(--glass); border: 1px solid var(--border); padding: 40px 30px; width: 100%; max-width: 500px;
-            display: flex; flex-direction: column; gap: 25px; text-align: center; clip-path: polygon(0 0, 100% 0, 100% 90%, 95% 100%, 0 100%);
-            backdrop-filter: blur(15px); box-shadow: 0 0 50px rgba(255, 0, 60, 0.1), inset 0 0 20px rgba(255, 0, 60, 0.05);
-            animation: slideUp 0.8s cubic-bezier(0.1, 0.8, 0.2, 1); margin: auto;
-        }
-
-        .login-box.shake-error { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; border-color: var(--red-neon); box-shadow: 0 0 50px rgba(255, 0, 60, 0.5); }
-
-        .login-box .logo-glitch {
-            font-family: 'Syne', sans-serif; font-size: clamp(2rem, 6vw, 3.5rem); font-weight: 800; text-transform: uppercase;
-            color: #fff; text-shadow: 0 0 10px var(--red-neon), 0 0 30px var(--red-dark); position: relative; letter-spacing: 2px; margin-bottom: 10px;
-        }
-
-        .login-box .logo-glitch::before {
-            content: attr(data-text); position: absolute; left: 2px; text-shadow: -2px 0 var(--red-neon);
-            background: var(--bg); overflow: hidden; clip: rect(0, 900px, 0, 0); animation: glitch-anim 3s infinite linear alternate-reverse;
-        }
-
-        .input-group-login input {
-            width: 100%; padding: 20px; background: rgba(0,0,0,0.8); border: 1px solid var(--border); color: var(--red-neon);
-            font-family: 'Fira Code', monospace; font-size: 1.1rem; text-align: center; outline: none; transition: 0.3s; letter-spacing: 1px; border-radius: 4px;
-        }
-
-        .input-group-login input::placeholder { color: rgba(255, 0, 60, 0.4); letter-spacing: 1px; font-size: 1rem; }
-        .input-group-login input:focus { border-color: var(--red-neon); box-shadow: 0 0 20px rgba(255, 0, 60, 0.4); background: rgba(20, 0, 5, 0.9); }
-
-        .login-btn {
-            background: var(--red-neon); color: #000; border: none; padding: 20px; font-size: 1.2rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 3px; cursor: pointer; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);
-            transition: 0.3s; position: relative; overflow: hidden;
-        }
-
-        .login-btn:hover { background: #fff; box-shadow: 0 0 40px var(--red-neon); }
-        .hidden-screen { opacity: 0; visibility: hidden; }
-        .auth-success { background: var(--cyan) !important; color: #000 !important; box-shadow: 0 0 40px var(--cyan) !important; }
-        .auth-error { background: #fff !important; color: var(--red-neon) !important; box-shadow: 0 0 40px var(--red-neon) !important; }
+        #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; display: flex; justify-content: center; align-items: center; z-index: 100; padding: 20px; transition: opacity 0.5s ease; }
+        .login-box { background: var(--glass); border: 1px solid var(--border); padding: 40px 30px; width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 25px; text-align: center; clip-path: polygon(0 0, 100% 0, 100% 90%, 95% 100%, 0 100%); backdrop-filter: blur(15px); box-shadow: 0 0 50px rgba(255, 0, 60, 0.1); margin: auto; }
+        .logo-glitch { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 6vw, 3.5rem); font-weight: 800; text-transform: uppercase; color: #fff; text-shadow: 0 0 10px var(--red); position: relative; letter-spacing: 2px; }
+        .input-group input { width: 100%; padding: 20px; background: rgba(0,0,0,0.8); border: 1px solid var(--border); color: var(--red); font-family: 'Fira Code', monospace; font-size: 1.1rem; text-align: center; outline: none; transition: 0.3s; border-radius: 4px; }
+        .input-group input:focus { border-color: var(--red); box-shadow: 0 0 20px rgba(255, 0, 60, 0.4); }
+        .login-btn { background: var(--red); color: #000; border: none; padding: 20px; font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; cursor: pointer; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%); transition: 0.3s; }
+        .login-btn:hover { background: #fff; box-shadow: 0 0 40px var(--red); }
+        .hidden-screen { opacity: 0; visibility: hidden; pointer-events: none; }
+        .auth-error { background: #fff !important; color: var(--red) !important; }
 
         /* Obfuscation Screen */
-        #obfuscationScreen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-            background: #000; z-index: 200; display: none; flex-direction: column;
-            justify-content: center; align-items: center; text-align: center; padding: 20px;
-        }
-
-        .obf-text {
-            color: var(--red-neon); font-family: 'Syne', sans-serif;
-            font-size: clamp(1.5rem, 5vw, 3rem); font-weight: 800; letter-spacing: 3px;
-            text-shadow: 0 0 20px var(--red-neon), 0 0 50px var(--red-dark);
-            animation: pulse-border 1s infinite alternate; word-break: break-word;
-        }
-
-        .obf-subtext {
-            color: var(--cyan); font-family: 'Fira Code', monospace;
-            font-size: 1rem; margin-top: 20px; letter-spacing: 2px;
-            opacity: 0; animation: fadeIn 1s 1.5s forwards;
-        }
+        #obfuscationScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: #000; z-index: 200; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .obf-text { color: var(--red); font-family: 'Syne', sans-serif; font-size: clamp(1.5rem, 5vw, 3rem); font-weight: 800; letter-spacing: 3px; text-shadow: 0 0 20px var(--red); animation: pulse 1s infinite alternate; }
 
         /* Main App */
-        #mainApp { display: none; flex-direction: column; min-height: 100vh; opacity: 0; transition: opacity 1s ease; z-index: 20; width: 100%; }
-        #mainApp.show-app { display: flex; opacity: 1; }
+        #mainApp { display: none; flex-direction: column; min-height: 100vh; z-index: 20; width: 100%; }
+        header { padding: 30px 20px 20px; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--border); margin: 0 20px; flex-wrap: wrap; gap: 10px; }
+        header h1 { font-family: 'Syne', sans-serif; font-size: 2rem; color: #fff; text-shadow: 0 0 10px var(--red); }
+        .status-indicator { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: var(--red); font-weight: 600; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid var(--border); }
+        .blink-dot { width: 10px; height: 10px; background: var(--red); border-radius: 50%; box-shadow: 0 0 10px var(--red); animation: blink 1s infinite alternate; }
 
-        header { padding: 30px 20px 20px; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--border); margin: 0 20px; position: relative; z-index: 20; flex-wrap: wrap; gap: 10px; }
-        header h1 { font-family: 'Syne', sans-serif; font-size: clamp(1.5rem, 3vw, 2.5rem); color: #fff; text-shadow: 0 0 10px var(--red-neon); letter-spacing: 2px; }
-
-        .status-indicator { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: var(--red-neon); font-weight: 600; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid var(--border); }
-        .blink-dot { width: 10px; height: 10px; background: var(--red-neon); border-radius: 50%; box-shadow: 0 0 10px var(--red-neon); animation: blink 1s infinite alternate; }
-
-        /* TABS */
-        .tabs-nav { display: flex; justify-content: center; gap: 10px; margin: 20px auto 0; width: 100%; max-width: 1600px; padding: 0 20px; flex-wrap: wrap; }
-        .tab-btn {
-            background: transparent; border: 1px solid var(--border); color: var(--text); padding: 12px 30px; font-size: 1rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.3s; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%); font-family: 'Syne', sans-serif;
-        }
-        .tab-btn.active { background: rgba(255, 0, 60, 0.15); color: var(--red-neon); border-color: var(--red-neon); box-shadow: 0 0 20px rgba(255, 0, 60, 0.3); text-shadow: 0 0 10px var(--red-neon); }
-        .tab-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.05); }
-        
+        .tabs-nav { display: flex; justify-content: center; gap: 10px; margin: 20px auto 0; padding: 0 20px; flex-wrap: wrap; }
+        .tab-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 12px 30px; font-size: 1rem; font-weight: 600; text-transform: uppercase; cursor: pointer; transition: 0.3s; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%); font-family: 'Syne', sans-serif; }
+        .tab-btn.active { background: rgba(255, 0, 60, 0.15); color: var(--red); border-color: var(--red); box-shadow: 0 0 20px rgba(255, 0, 60, 0.3); }
         .tab-btn.logout-tab { border-color: #555; color: #888; }
-        .tab-btn.logout-tab:hover { border-color: var(--red-neon); color: var(--red-neon); }
-        .tab-btn.logout-tab.active { background: rgba(255, 0, 60, 0.2); border-color: var(--red-neon); color: var(--red-neon); }
+        .tab-btn.logout-tab:hover { border-color: var(--red); color: var(--red); }
 
         .tab-content { display: none; flex: 1; padding: 20px; gap: 20px; max-width: 1600px; margin: 0 auto; width: 100%; animation: fadeIn 0.5s ease; }
         .tab-content.active { display: grid; grid-template-columns: 1fr; }
         @media (min-width: 900px) { .tab-content.active { grid-template-columns: 1fr 1fr; padding: 40px; } }
+        #logoutTab.active { display: flex; justify-content: center; align-items: center; }
 
-        #logoutTab.active { display: flex; justify-content: center; align-items: center; grid-template-columns: 1fr; }
-        
-        /* Shared */
         .control-section { display: flex; flex-direction: column; gap: 20px; }
-        .input-area, .data-matrix, .log-section, .generator-form { background: var(--glass); border: 1px solid var(--border); backdrop-filter: blur(10px); transition: 0.3s; }
-
-        .input-area { padding: 5px; display: flex; flex-direction: column; gap: 5px; clip-path: polygon(0 0, 100% 0, 97% 100%, 0% 100%); }
-        .input-area:focus-within { border-color: var(--red-neon); box-shadow: 0 0 25px rgba(255, 0, 60, 0.4); }
+        .glass-box { background: var(--glass); border: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; gap: 20px; clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%); backdrop-filter: blur(10px); }
+        
+        .input-area { padding: 5px; display: flex; flex-direction: column; gap: 5px; background: var(--glass); border: 1px solid var(--border); clip-path: polygon(0 0, 100% 0, 97% 100%, 0% 100%); }
         .input-area input { background: rgba(0,0,0,0.8); border: none; padding: 18px 20px; color: #fff; font-size: 1.1rem; outline: none; }
+        .action-btn { background: var(--red); color: #000; border: none; padding: 18px; font-size: 1rem; font-weight: 700; text-transform: uppercase; cursor: pointer; clip-path: polygon(3% 0, 100% 0, 97% 100%, 0% 100%); transition: 0.3s; }
+        .action-btn:hover { background: #fff; box-shadow: 0 0 30px var(--red); }
 
-        .action-btn { background: var(--red-neon); color: #000; border: none; padding: 18px; font-size: 1rem; font-weight: 700; text-transform: uppercase; cursor: pointer; clip-path: polygon(3% 0, 100% 0, 97% 100%, 0% 100%); transition: 0.3s; }
-        .action-btn:hover:not(:disabled) { background: #fff; box-shadow: 0 0 30px var(--red-neon); }
-        .action-btn:disabled { background: #222; color: #666; cursor: not-allowed; }
-
-        .data-matrix { padding: 25px; display: flex; flex-direction: column; gap: 20px; clip-path: polygon(0 0, 100% 0, 100% 90%, 95% 100%, 0 100%); }
-        .matrix-header { font-family: 'Syne', sans-serif; font-size: 1rem; color: var(--red-neon); border-bottom: 1px dashed var(--border); padding-bottom: 10px; display: flex; justify-content: space-between; }
         .stat-row { display: flex; flex-direction: column; gap: 8px; }
         .stat-info { display: flex; justify-content: space-between; font-size: 0.85rem; text-transform: uppercase; }
-        .stat-val { color: var(--red-neon); font-weight: 700; font-size: 1rem; text-shadow: 0 0 10px rgba(255,0,60,0.5); }
-        .stat-bar-bg { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 0, 60, 0.2); overflow: hidden; }
-        .stat-bar-fill { height: 100%; width: 0%; background: var(--red-neon); box-shadow: 0 0 15px var(--red-neon); transition: width 0.6s ease; }
-        .total-download-box { margin-top: 10px; background: rgba(255, 0, 60, 0.1); border: 1px solid var(--red-neon); padding: 15px; display: flex; justify-content: space-between; align-items: center; clip-path: polygon(0 0, 100% 0, 100% 100%, 5% 100%); box-shadow: inset 0 0 20px rgba(255,0,60,0.2); animation: pulse-border 2s infinite alternate; }
-        .total-download-box span:last-child { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: #fff; text-shadow: 0 0 15px var(--red-neon); }
+        .stat-val { color: var(--red); font-weight: 700; }
+        .stat-bar-bg { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 0, 60, 0.2); }
+        .stat-bar-fill { height: 100%; width: 0%; background: var(--red); box-shadow: 0 0 15px var(--red); transition: width 0.6s ease; }
+        .total-download-box { margin-top: 10px; background: rgba(255, 0, 60, 0.1); border: 1px solid var(--red); padding: 15px; display: flex; justify-content: space-between; align-items: center; clip-path: polygon(0 0, 100% 0, 100% 100%, 5% 100%); }
+        .total-download-box span:last-child { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: #fff; }
 
-        /* Download Actions */
-        .download-actions { display: none; gap: 10px; margin-top: 15px; animation: slideUp 0.5s ease; }
+        .download-actions { display: none; gap: 10px; margin-top: 15px; }
         .download-actions.show { display: flex; }
-        .dl-btn {
-            flex: 1; background: rgba(0,0,0,0.6); border: 1px solid var(--cyan); color: var(--cyan); padding: 12px;
-            font-size: 0.9rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.3s;
-            clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%); font-family: 'Fira Code', monospace;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .dl-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan); transform: scale(1.05); }
-        .dl-btn.zip-btn { border-color: var(--red-neon); color: var(--red-neon); }
-        .dl-btn.zip-btn:hover { background: var(--red-neon); box-shadow: 0 0 20px var(--red-neon); }
+        .dl-btn { flex: 1; background: rgba(0,0,0,0.6); border: 1px solid var(--cyan); color: var(--cyan); padding: 12px; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.3s; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dl-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan); }
+        .dl-btn.zip-btn { border-color: var(--red); color: var(--red); }
+        .dl-btn.zip-btn:hover { background: var(--red); box-shadow: 0 0 20px var(--red); }
 
-        .log-section { display: flex; flex-direction: column; min-height: 400px; clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%); }
-        .log-header { padding: 15px 20px; background: rgba(255, 0, 60, 0.15); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; color: var(--red-neon); font-size: 0.8rem; }
-        .log-content { flex: 1; padding: 20px; overflow-y: auto; font-size: 0.9rem; line-height: 1.6; display: flex; flex-direction: column; gap: 8px; position: relative; }
-        .log-content::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: rgba(255, 0, 60, 0.8); box-shadow: 0 0 20px var(--red-neon); animation: scan 3s linear infinite; pointer-events: none; }
-        .log-line { color: #888; }
-        .log-line.success { color: var(--cyan); }
-        .log-line.error { color: var(--red-neon); }
-        .log-line.info { color: #ffaa00; }
+        .code-viewer-container { background: var(--glass); border: 1px solid var(--border); clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%); overflow: hidden; }
+        .code-viewer-header { background: rgba(255, 0, 60, 0.15); padding: 10px 15px; font-size: 0.8rem; color: var(--red); font-weight: 700; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); }
+        .code-viewer-content { padding: 15px; color: var(--cyan); font-size: 0.85rem; line-height: 1.5; max-height: 250px; overflow-y: auto; white-space: pre-wrap; background: #030000; }
+        
+        .log-section { display: flex; flex-direction: column; min-height: 400px; background: var(--glass); border: 1px solid var(--border); clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%); }
+        .log-header { padding: 15px 20px; background: rgba(255, 0, 60, 0.15); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; color: var(--red); font-size: 0.8rem; }
+        .log-content { flex: 1; padding: 20px; overflow-y: auto; font-size: 0.9rem; line-height: 1.6; display: flex; flex-direction: column; gap: 8px; }
+        .log-line.success { color: var(--cyan); } .log-line.error { color: var(--red); } .log-line.info { color: #ffaa00; }
 
-        /* Generator & Logout Styles */
-        .generator-form { padding: 30px; display: flex; flex-direction: column; gap: 20px; clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%); }
+        /* Generator Styles */
         .form-group { display: flex; flex-direction: column; gap: 8px; }
-        .form-group label { color: var(--text); font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; }
         .input-row { display: flex; gap: 10px; }
-        .custom-select, .custom-input { appearance: none; background: rgba(0,0,0,0.8); border: 1px solid var(--border); color: #fff; padding: 15px; font-size: 1rem; border-radius: 4px; outline: none; cursor: pointer; transition: 0.3s; font-family: 'Fira Code', monospace; }
-        .custom-select { flex: 1; }
-        .custom-select:focus, .custom-input:focus { border-color: var(--red-neon); box-shadow: 0 0 10px rgba(255,0,60,0.3); }
-        .custom-select option { background: #000; color: #fff; }
-        .custom-input { width: 100px; text-align: center; display: block; }
-        .toggle-container { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.5); border: 1px solid var(--border); padding: 15px; border-radius: 4px; }
+        .custom-select, .custom-input { flex: 1; background: rgba(0,0,0,0.8); border: 1px solid var(--border); color: #fff; padding: 15px; outline: none; }
+        .toggle-container { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); border: 1px solid var(--border); padding: 15px; }
         .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; border: 1px solid #555; }
-        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--red-dark); border-color: var(--red-neon); box-shadow: 0 0 15px rgba(255,0,60,0.5); }
-        input:checked + .slider:before { transform: translateX(26px); background-color: var(--red-neon); }
-        #keyResultArea { display: none; flex-direction: column; gap: 10px; margin-top: 10px; animation: fadeIn 0.3s ease; }
-        .code-container { background: #0a0a0a; border: 1px solid #333; border-radius: 8px; padding: 15px; font-family: 'Fira Code', monospace; font-size: 0.95rem; text-align: left; line-height: 1.5; color: #00ffcc; overflow-x: auto; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
-        .code-keyword { color: #ff003c; font-weight: bold; }
-        .code-string { color: #ffaa00; }
-        .code-comment { color: #777; }
-        .copy-btn { background: var(--cyan); color: #000; border: none; padding: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%); }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--red); box-shadow: 0 0 15px var(--red); }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        .copy-btn { background: var(--cyan); color: #000; border: none; padding: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; margin-top: 10px; }
         .copy-btn:hover { background: #fff; box-shadow: 0 0 20px var(--cyan); }
-        .copy-btn.copied { background: #fff; color: #000; box-shadow: 0 0 30px #fff; }
 
-        /* Blacklist */
-        .blacklist-section { margin-top: 10px; padding-top: 20px; border-top: 1px dashed var(--border); }
-        .blacklist-input-group { display: flex; gap: 10px; flex-wrap: wrap; }
-        .blacklist-input-group input { flex: 1; min-width: 200px; background: rgba(0,0,0,0.8); border: 1px solid var(--border); padding: 12px 15px; color: #fff; font-family: 'Fira Code', monospace; outline: none; }
-        .blacklist-btn { background: transparent; border: 1px solid var(--red-neon); color: var(--red-neon); padding: 12px 20px; font-weight: 700; cursor: pointer; transition: 0.3s; white-space: nowrap; }
-        .blacklist-btn:hover { background: var(--red-neon); color: #000; }
-        .unblacklist-list { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto; }
-        .bl-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255, 0, 60, 0.1); border: 1px solid rgba(255, 0, 60, 0.3); padding: 10px 15px; font-size: 0.85rem; color: #fff; word-break: break-all; gap: 10px; }
-        .remove-bl-btn { background: transparent; border: 1px solid #fff; color: #fff; padding: 5px 10px; font-size: 0.7rem; cursor: pointer; transition: 0.3s; }
-        .remove-bl-btn:hover { background: #fff; color: #000; }
+        .logout-container { background: var(--glass); border: 2px solid var(--red); padding: 50px 40px; text-align: center; max-width: 600px; width: 100%; clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%); }
+        .warning-icon { font-size: 4rem; color: var(--red); margin-bottom: 20px; animation: pulse 1.5s infinite alternate; }
+        .logout-buttons { display: flex; gap: 20px; justify-content: center; margin-top: 30px; }
+        .btn-yes, .btn-no { padding: 15px 40px; font-size: 1.2rem; font-weight: 800; cursor: pointer; border: none; }
+        .btn-yes { background: var(--red); color: #000; } .btn-no { background: transparent; color: var(--cyan); border: 2px solid var(--cyan); }
 
-        /* Warning Modal */
-        .logout-container { background: var(--glass); border: 2px solid var(--red-neon); border-radius: 15px; padding: 50px 40px; text-align: center; max-width: 600px; width: 100%; box-shadow: 0 0 50px rgba(255, 0, 60, 0.3), inset 0 0 30px rgba(255, 0, 60, 0.1); animation: slideUp 0.5s ease; margin: auto; }
-        .warning-icon { font-size: 4rem; color: var(--red-neon); margin-bottom: 20px; display: inline-block; animation: pulse-border 1.5s infinite alternate; text-shadow: 0 0 20px var(--red-neon); }
-        .logout-container h2 { font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 4vw, 2.5rem); color: #fff; margin-bottom: 15px; text-shadow: 0 0 10px var(--red-neon); }
-        .logout-container p { font-size: 1.1rem; color: #ccc; margin-bottom: 40px; letter-spacing: 1px; }
-        .logout-buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
-        .btn-yes, .btn-no { padding: 15px 40px; font-size: 1.2rem; font-weight: 800; cursor: pointer; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%); transition: 0.3s; letter-spacing: 2px; font-family: 'Syne', sans-serif; border: none; }
-        .btn-yes { background: var(--red-neon); color: #000; box-shadow: 0 0 20px rgba(255, 0, 60, 0.4); }
-        .btn-yes:hover { background: #fff; box-shadow: 0 0 40px var(--red-neon); transform: scale(1.05); }
-        .btn-no { background: transparent; color: var(--cyan); border: 2px solid var(--cyan); }
-        .btn-no:hover { background: var(--cyan); color: #000; box-shadow: 0 0 40px var(--cyan); transform: scale(1.05); }
-
-        /* Animations */
-        @keyframes blink { 0% { opacity: 1; } 100% { opacity: 0.3; } }
-        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
-        @keyframes pulse-border { 0% { border-color: rgba(255, 0, 60, 0.4); box-shadow: 0 0 10px rgba(255,0,60,0.2); } 100% { border-color: rgba(255, 0, 60, 1); box-shadow: 0 0 30px rgba(255,0,60,0.8); } }
-        @keyframes glitch-anim { 0% { clip: rect(10px, 9999px, 20px, 0); } 20% { clip: rect(50px, 9999px, 60px, 0); } 40% { clip: rect(30px, 9999px, 40px, 0); } 60% { clip: rect(80px, 9999px, 90px, 0); } 80% { clip: rect(15px, 9999px, 25px, 0); } 100% { clip: rect(60px, 9999px, 70px, 0); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes pulse { from { text-shadow: 0 0 10px var(--red); } to { text-shadow: 0 0 30px var(--red), 0 0 50px var(--dark-red); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--red-neon); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #fff; }
     </style>
 </head>
 <body>
-
     <canvas id="matrixCanvas"></canvas>
 
-    <!-- شاشة فك التشفير (Obfuscation) -->
     <div id="obfuscationScreen">
         <div class="obf-text" id="obfText"></div>
-        <div class="obf-subtext" id="obfSubtext">DECRYPTING PAYLOAD... <br> [ SUCCESS ]</div>
     </div>
 
-    <!-- شاشة الدخول -->
     <div id="loginScreen">
-        <div class="login-box" id="loginBox">
-            <div class="logo-glitch" data-text="𝑳𝑹𝒁 𝑿 !𝑴𝑨𝑹𝑨𝑾𝑨𝑵">𝑳𝑹𝒁 𝑿 !𝑴𝑨𝑹𝑨𝑾𝑨𝑵</div>
-            <div class="input-group-login">
+        <div class="login-box">
+            <div class="logo-glitch">𝑳𝑹𝒁 𝑿 !𝑴𝑨𝑹𝑨𝑾𝑨𝑵</div>
+            <div class="input-group">
                 <input type="text" id="apiKeyInput" placeholder="Paste API Key or Script here...">
             </div>
             <button id="continueBtn" class="login-btn">CONTINUE</button>
         </div>
     </div>
 
-    <!-- الموقع -->
     <div id="mainApp">
         <header>
             <h1>𝑳𝑹𝒁 𝑿 !𝑴𝑨𝑹𝑨𝑾𝑨𝑵</h1>
-            <div class="status-indicator"><div class="blink-dot"></div><span>SYSTEM ONLINE</span></div>
+            <div class="status-indicator"><div class="blink-dot"></div><span>SERVER ONLINE</span></div>
         </header>
 
-        <!-- التابات -->
         <nav class="tabs-nav">
             <button class="tab-btn active" onclick="switchTab('mainTab', this)">Main</button>
             <button class="tab-btn" onclick="switchTab('generatorTab', this)">Generator</button>
             <button class="tab-btn logout-tab" onclick="switchTab('logoutTab', this)">Logout</button>
         </nav>
 
-        <!-- TAP MAIN -->
         <div id="mainTab" class="tab-content active">
             <section class="control-section">
                 <div class="input-area">
                     <input type="text" id="urlInput" placeholder="https://example.com" autocomplete="off">
                     <button class="action-btn" id="confirmBtn">Execute Target</button>
                 </div>
-                <div class="data-matrix">
-                    <div class="matrix-header"><span>DATA_EXTRACTION</span><span>STATUS: <span id="fetchStatus" style="color:#ffaa00;">IDLE</span></span></div>
-                    
-                    <div class="stat-row"><div class="stat-info"><span>Pages Crawled</span><span class="stat-val" id="pagesCount">0</span></div><div class="stat-bar-bg"><div class="stat-bar-fill" id="pagesBar"></div></div></div>
-                    <div class="stat-row"><div class="stat-info"><span>Scripts Extracted</span><span class="stat-val" id="scriptsCount">0</span></div><div class="stat-bar-bg"><div class="stat-bar-fill" id="scriptsBar"></div></div></div>
-                    <div class="stat-row"><div class="stat-info"><span>Assets Scanned</span><span class="stat-val" id="assetsCount">0</span></div><div class="stat-bar-bg"><div class="stat-bar-fill" id="assetsBar"></div></div></div>
-                    
-                    <div class="total-download-box"><span>Total Downloaded</span><span><span id="kbCount">0.0</span> <span style="font-size: 1rem;">KB</span></span></div>
-
-                    <!-- أزرار التحميل -->
+                <div class="glass-box">
+                    <div class="stat-row"><div class="stat-info"><span>Pages</span><span class="stat-val" id="pagesCount">0</span></div><div class="stat-bar-bg"><div class="stat-bar-fill" id="pagesBar"></div></div></div>
+                    <div class="stat-row"><div class="stat-info"><span>Scripts</span><span class="stat-val" id="scriptsCount">0</span></div><div class="stat-bar-bg"><div class="stat-bar-fill" id="scriptsBar"></div></div></div>
+                    <div class="stat-row"><div class="stat-info"><span>Assets</span><span class="stat-val" id="assetsCount">0</span></div><div class="stat-bar-bg"><div class="stat-bar-fill" id="assetsBar"></div></div></div>
+                    <div class="total-download-box"><span>Total Size</span><span><span id="kbCount">0.0</span> KB</span></div>
                     <div class="download-actions" id="downloadActions">
-                        <button class="dl-btn" onclick="downloadFile('txt')" id="dlTxtBtn">download.txt</button>
-                        <button class="dl-btn zip-btn" onclick="downloadFile('zip')" id="dlZipBtn">download.zip</button>
+                        <button class="dl-btn" onclick="downloadTxt()" id="dlTxtBtn">download.txt</button>
+                        <button class="dl-btn zip-btn" onclick="downloadZip()" id="dlZipBtn">download.zip</button>
                     </div>
-
+                </div>
+                <div class="code-viewer-container">
+                    <div class="code-viewer-header"><span>[ EXPLOIT PAYLOAD SCRIPT ]</span><span id="codeStatus">READY</span></div>
+                    <div class="code-viewer-content" id="rawCodeOutput">local appkey = "WAITING_FOR_TARGET..."</div>
                 </div>
             </section>
-            <section class="log-section" id="logSection">
+            <section class="log-section">
                 <div class="log-header"><span>[ LIVE DATA STREAM ]</span><span>ENCRYPTED</span></div>
-                <div class="log-content" id="logContainer"><div class="log-line success">> Owner Access Granted. System Ready...</div></div>
+                <div class="log-content" id="logContainer"><div class="log-line success">> System Ready...</div></div>
             </section>
         </div>
 
-        <!-- TAP GENERATOR -->
         <div id="generatorTab" class="tab-content">
             <section class="control-section">
-                <div class="generator-form">
-                    <h2 style="font-family: 'Syne'; color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 10px;">KEY GENERATOR</h2>
+                <div class="glass-box">
+                    <h2 style="color:#fff; border-bottom: 1px solid var(--border); padding-bottom: 10px;">KEY GENERATOR</h2>
                     <div class="form-group">
                         <label>DURATION</label>
                         <div class="input-row">
-                            <select class="custom-select" id="durationSelect" onchange="toggleDurationInput()">
-                                <option value="DAYS">DAYS</option>
-                                <option value="HOURS">HOURS</option>
-                                <option value="LIFETIME">LIFETIME</option>
+                            <select class="custom-select" id="durationSelect">
+                                <option value="DAYS">DAYS</option><option value="HOURS">HOURS</option><option value="LIFETIME">LIFETIME</option>
                             </select>
                             <input type="number" id="durationAmount" class="custom-input" min="1" value="1" placeholder="Qty">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>HWID LOCK (One Device Only)</label>
+                        <label>HWID LOCK</label>
                         <div class="toggle-container">
-                            <span style="font-size: 0.9rem; color: #aaa;">Enable HWID Protection?</span>
+                            <span style="font-size: 0.9rem; color: #aaa;">Enable HWID?</span>
                             <label class="switch"><input type="checkbox" id="hwidToggle"><span class="slider"></span></label>
                         </div>
                     </div>
                     <button class="action-btn" onclick="generateKey()">GENERATE KEY</button>
-                    <div id="keyResultArea">
-                        <div class="code-container" id="generatedCodeDisplay"></div>
+                    <div id="keyResultArea" style="display:none; margin-top: 15px;">
+                        <div class="code-viewer-content" id="generatedCodeDisplay"></div>
                         <button id="copyKeyBtn" class="copy-btn">COPY SCRIPT</button>
                     </div>
                 </div>
             </section>
             <section class="control-section">
-                <div class="generator-form blacklist-section" style="height: 100%;">
-                    <h2 style="font-family: 'Syne'; color: var(--red-neon); border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 10px;">BLACKLIST SYSTEM</h2>
-                    <div class="form-group">
-                        <label>BLACKLIST A KEY</label>
-                        <div class="blacklist-input-group">
-                            <input type="text" id="blInput" placeholder="http://...">
-                            <button class="blacklist-btn" onclick="addBlacklist()">BLACKLIST</button>
-                        </div>
+                <div class="glass-box">
+                    <h2 style="color: var(--red); border-bottom: 1px solid var(--border); padding-bottom: 10px;">BLACKLIST</h2>
+                    <div class="input-row">
+                        <input type="text" id="blInput" class="custom-input" placeholder="appkey=..." style="flex: 2;">
+                        <button class="action-btn" onclick="addBlacklist()" style="flex: 1; padding: 15px;">BLACKLIST</button>
                     </div>
-                    <div class="form-group" style="margin-top: 20px;">
-                        <label>UNBLACKLIST (ACTIVE BLOCKS)</label>
-                        <div class="unblacklist-list" id="blList"></div>
-                    </div>
+                    <div class="unblacklist-list" id="blList" style="margin-top: 15px; max-height: 200px; overflow-y: auto;"></div>
                 </div>
             </section>
         </div>
 
-        <!-- TAP LOGOUT (WARNING) -->
         <div id="logoutTab" class="tab-content">
             <div class="logout-container">
                 <div class="warning-icon">⚠️</div>
-                <h2>Warning!!</h2>
+                <h2 style="color: #fff; margin-bottom: 10px;">Warning!!</h2>
                 <p>Are u sure to logout?</p>
                 <div class="logout-buttons">
                     <button class="btn-yes" onclick="doLogout()">YES</button>
-                    <button class="btn-no" onclick="cancelLogout()">NO</button>
+                    <button class="btn-no" onclick="switchTab('mainTab', document.querySelector('.tab-btn'))">NO</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- Matrix Effect ---
-        const canvas = document.getElementById('matrixCanvas');
-        const ctx = canvas.getContext('2d');
+        // Matrix Background
+        const canvas = document.getElementById('matrixCanvas'), ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*";
-        const fontSize = 16; const columns = canvas.width / fontSize; const drops = [];
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*", fontSize = 16, columns = canvas.width / fontSize, drops = [];
         for (let x = 0; x < columns; x++) drops[x] = 1;
         function drawMatrix() {
             ctx.fillStyle = "rgba(0, 0, 0, 0.05)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -389,350 +238,196 @@
             }
         }
         setInterval(drawMatrix, 50);
-        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
 
-        // --- Auth & Session (Frontend Only) ---
+        // Elements
         const loginScreen = document.getElementById('loginScreen');
-        const loginBox = document.getElementById('loginBox');
         const mainApp = document.getElementById('mainApp');
         const continueBtn = document.getElementById('continueBtn');
         const apiKeyInput = document.getElementById('apiKeyInput');
         const obfuscationScreen = document.getElementById('obfuscationScreen');
-        const obfText = document.getElementById('obfText');
-        
-        const OWNER_KEY = "!LRZ X !MARAWAN-976&$";
-
-        let validKeys = JSON.parse(localStorage.getItem('validKeys')) || {};
-        let blacklistedKeys = JSON.parse(localStorage.getItem('blKeys')) || [];
-
-        window.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('lrz_session') === 'active') {
-                loginScreen.style.display = 'none';
-                mainApp.classList.add('show-app');
-            }
-        });
-
-        continueBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            let rawInput = apiKeyInput.value.trim();
-            let keyToCheck = rawInput;
-            let isValid = false;
-
-            if (rawInput.includes('http')) {
-                const match = rawInput.match(/http[^"\s]+/);
-                if (match) keyToCheck = match[0];
-            }
-
-            if (keyToCheck === OWNER_KEY) { 
-                isValid = true; 
-            } 
-            else if (keyToCheck.startsWith("http")) {
-                if (blacklistedKeys.includes(keyToCheck)) { alert("ACCESS DENIED: This key is BLACKLISTED."); return; }
-                
-                if (validKeys[keyToCheck]) {
-                    const expiryTime = validKeys[keyToCheck];
-                    if (Date.now() < expiryTime) { 
-                        isValid = true; 
-                    } 
-                    else {
-                        alert("ACCESS DENIED: This key has EXPIRED.");
-                        delete validKeys[keyToCheck]; localStorage.setItem('validKeys', JSON.stringify(validKeys)); return;
-                    }
-                } else { alert("ACCESS DENIED: Invalid Key."); return; }
-            }
-
-            if (isValid) {
-                continueBtn.innerText = "AUTHENTICATING...";
-                continueBtn.style.color = "#000"; continueBtn.style.background = "#ffaa00"; 
-                
-                setTimeout(() => {
-                    continueBtn.innerText = "ACCESS GRANTED"; continueBtn.classList.add('auth-success');
-                    
-                    localStorage.setItem('lrz_session', 'active');
-
-                    if (keyToCheck.startsWith("http")) {
-                        showObfuscationScreen();
-                    } else {
-                        setTimeout(() => {
-                            loginScreen.classList.add('hidden-screen');
-                            setTimeout(() => { loginScreen.style.display = 'none'; mainApp.classList.add('show-app'); }, 500);
-                        }, 800);
-                    }
-
-                }, 1000);
-            } else {
-                continueBtn.innerText = "ACCESS DENIED"; continueBtn.classList.add('auth-error'); loginBox.classList.add('shake-error'); 
-                setTimeout(() => {
-                    continueBtn.innerText = "CONTINUE"; continueBtn.classList.remove('auth-error'); loginBox.classList.remove('shake-error'); apiKeyInput.value = "";
-                }, 2000);
-            }
-        });
-
-        function showObfuscationScreen() {
-            loginScreen.style.display = 'none';
-            obfuscationScreen.style.display = 'flex';
-            obfText.innerHTML = '';
-
-            const message = "THIS APP LINK WAS OBFUSCATED";
-            let i = 0;
-            
-            const typeInterval = setInterval(() => {
-                obfText.innerHTML += message.charAt(i);
-                i++;
-                if (i === message.length) {
-                    clearInterval(typeInterval);
-                    setTimeout(() => {
-                        obfuscationScreen.style.display = 'none';
-                        mainApp.classList.add('show-app');
-                        continueBtn.innerText = "CONTINUE";
-                        continueBtn.style.background = ""; continueBtn.style.color = "";
-                        continueBtn.classList.remove('auth-success');
-                        apiKeyInput.value = "";
-                    }, 2500);
-                }
-            }, 80);
-        }
-
-        // --- Tabs ---
-        function switchTab(tabId, btnElement) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active'); btnElement.classList.add('active');
-        }
-
-        // --- Logout ---
-        function doLogout() {
-            localStorage.removeItem('lrz_session'); 
-            mainApp.classList.remove('show-app');
-            loginScreen.style.display = 'flex';
-            setTimeout(() => {
-                loginScreen.classList.remove('hidden-screen');
-                apiKeyInput.value = "";
-                continueBtn.innerText = "CONTINUE";
-                continueBtn.style.background = ""; continueBtn.style.color = ""; 
-                continueBtn.classList.remove('auth-success');
-                const mainTabBtn = document.querySelector('.tab-btn:not(.logout-tab)');
-                switchTab('mainTab', mainTabBtn);
-            }, 100);
-        }
-        function cancelLogout() {
-            const mainTabBtn = document.querySelector('.tab-btn:not(.logout-tab)');
-            switchTab('mainTab', mainTabBtn);
-        }
-
-        // --- Real Logic: Connect to Node.js Server ---
-        const confirmBtn = document.getElementById('confirmBtn');
-        const urlInput = document.getElementById('urlInput');
         const logContainer = document.getElementById('logContainer');
-        const fetchStatus = document.getElementById('fetchStatus');
-        const logSection = document.getElementById('logSection');
-        const downloadActions = document.getElementById('downloadActions');
-        const dlTxtBtn = document.getElementById('dlTxtBtn');
-        const dlZipBtn = document.getElementById('dlZipBtn');
-
-        // Global vars to store real data
-        let realPageText = "";
-        let realTargetName = "";
 
         function typeLog(msg, type = 'info') {
             const div = document.createElement('div'); div.className = `log-line ${type}`; logContainer.appendChild(div); logContainer.scrollTop = logContainer.scrollHeight;
-            let i = 0; const speed = 15;
-            function typeWriter() { if (i < msg.length) { div.innerText += msg.charAt(i); i++; setTimeout(typeWriter, speed); } }
-            typeWriter();
+            let i = 0; function type() { if (i < msg.length) { div.innerText += msg.charAt(i); i++; setTimeout(type, 15); } }
+            type();
         }
 
-        confirmBtn.addEventListener('click', async () => {
-            let url = urlInput.value.trim();
-            if(!url) { typeLog("ERROR: No target URL specified.", "error"); return; }
-            if(!url.startsWith('http')) url = 'https://' + url;
+        // --- 1. Authentication (Real API) ---
+        continueBtn.addEventListener('click', async () => {
+            let rawKey = apiKeyInput.value.trim();
+            if (!rawKey) return;
+            let keyToCheck = rawKey;
+            if (rawKey.includes('http')) { const match = rawKey.match(/http[^"\s]+/); if (match) keyToCheck = match[0]; }
+
+            continueBtn.innerText = "AUTHENTICATING...";
             
-            logSection.classList.add('shake'); setTimeout(() => logSection.classList.remove('shake'), 500);
-            confirmBtn.disabled = true; confirmBtn.innerText = "Analyzing..."; 
-            fetchStatus.innerText = "PROCESSING"; fetchStatus.style.color = "#ffaa00"; 
-            logContainer.innerHTML = '';
-            downloadActions.classList.remove('show');
-            realPageText = "";
-            realTargetName = url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
-
-            typeLog(`Connecting to local Node server...`, 'info');
-            typeLog(`Target Acquired: ${url}`, 'info');
-
             try {
-                // الاتصال بالسيرفر بتاعك (الـ Endpoint اللي انت عامله)
-                const response = await fetch('/api/site', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: url })
+                const res = await fetch('/api/auth', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: keyToCheck })
                 });
+                const data = await res.json();
 
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || "Server rejected the request.");
+                if (res.ok) {
+                    continueBtn.innerText = "ACCESS GRANTED"; continueBtn.style.background = "var(--cyan)";
+                    setTimeout(() => {
+                        loginScreen.style.display = 'none';
+                        if (keyToCheck.startsWith('http')) {
+                            obfuscationScreen.style.display = 'flex';
+                            let text = "THIS APP LINK WAS OBFUSCATED", i = 0;
+                            document.getElementById('obfText').innerHTML = '';
+                            let int = setInterval(() => {
+                                document.getElementById('obfText').innerHTML += text.charAt(i); i++;
+                                if (i === text.length) { clearInterval(int); setTimeout(() => { obfuscationScreen.style.display = 'none'; mainApp.style.display = 'flex'; }, 1500); }
+                            }, 50);
+                        } else { mainApp.style.display = 'flex'; }
+                    }, 1000);
+                } else {
+                    throw new Error(data.error);
                 }
-
-                // السيرفر رجع داتا حقيقية
-                typeLog(`[SUCCESS] Server responded with Status: 200`, 'success');
-                realPageText = data.page.text; // الكود المصدري الحقيقي
-
-                // حساب الأرقام الحقيقية
-                let scriptsCount = data.assets.filter(a => a.url.includes('.js')).length;
-                let assetsCount = data.assets.length;
-                let kbSize = (new Blob([realPageText]).size / 1024).toFixed(2);
-
-                typeLog(`Parsing DOM Tree... Page size: ${kbSize} KB`, 'success');
-                typeLog(`Found ${scriptsCount} JS scripts and ${assetsCount} assets.`, 'success');
-
-                // تحديث الواجهة
-                document.getElementById('pagesCount').innerText = "1"; // صفحة واحدة رئيسية
-                document.getElementById('pagesBar').style.width = '100%';
-
-                document.getElementById('scriptsCount').innerText = scriptsCount;
-                document.getElementById('scriptsBar').style.width = (scriptsCount > 0 ? 100 : 0) + '%';
-
-                document.getElementById('assetsCount').innerText = assetsCount;
-                document.getElementById('assetsBar').style.width = (assetsCount > 0 ? 100 : 0) + '%';
-
-                document.getElementById('kbCount').innerText = kbSize;
-
-                // أسماء الملفات
-                const fileBase = `${realTargetName}_deobf_by_!Lrz_x_!marawan`;
-                dlTxtBtn.innerText = `${fileBase}.txt`;
-                dlZipBtn.innerText = `${fileBase}.zip`;
-
-                // إنهاء
-                confirmBtn.disabled = false; confirmBtn.innerText = "Execute Target"; 
-                fetchStatus.innerText = "COMPLETED"; fetchStatus.style.color = "#00ffcc"; 
-                downloadActions.classList.add('show');
-                typeLog("Extraction Complete. Data ready for download.", "success");
-
-            } catch (error) {
-                // لو السيرفر رفض أو حصل مشكلة
-                typeLog(`[ERROR] ${error.message}`, 'error');
-                confirmBtn.disabled = false; confirmBtn.innerText = "Execute Target";
-                fetchStatus.innerText = "FAILED"; fetchStatus.style.color = "#ff003c";
+            } catch (err) {
+                continueBtn.innerText = "ACCESS DENIED"; continueBtn.style.background = "var(--red)"; continueBtn.style.color = "#fff";
+                setTimeout(() => { continueBtn.innerText = "CONTINUE"; continueBtn.style.background = ""; continueBtn.style.color = ""; }, 2000);
             }
         });
 
-        // --- Download Logic ---
-        function downloadFile(type) {
-            if (!realPageText) {
-                alert("No data available. Please run a scan first.");
-                return;
-            }
+        // --- 2. Tabs & Logout ---
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active'); btn.classList.add('active');
+            if (tabId === 'generatorTab') loadBlacklist();
+        }
+        function doLogout() { location.reload(); }
 
-            let filename = `${realTargetName}_deobf_by_!Lrz x !marawan.${type}`;
-            let content = realPageText; // الكود الحقيقي اللي رجع من السيرفر
-            let mimeType = "text/plain";
-
-            if (type === 'zip') {
-                // تحويل شكلي عشان يتحمل كملف zip
-                mimeType = "application/zip";
-            }
-
-            const blob = new Blob([content], { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+        // --- 3. Main Scraper Logic ---
+        let realPageText = "", realTargetName = "";
+        document.getElementById('confirmBtn').addEventListener('click', async () => {
+            let url = document.getElementById('urlInput').value.trim();
+            if(!url) return;
+            if(!url.startsWith('http')) url = 'https://' + url;
             
-            typeLog(`File downloaded: ${filename}`, 'success');
-        }
+            document.getElementById('confirmBtn').disabled = true;
+            document.getElementById('confirmBtn').innerText = "Analyzing...";
+            logContainer.innerHTML = ''; realTargetName = url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
 
-        // --- Generator & Blacklist (Frontend Only) ---
-        function toggleDurationInput() {
-            const type = document.getElementById('durationSelect').value;
-            const input = document.getElementById('durationAmount');
-            if (type === "LIFETIME") { input.style.display = 'none'; } 
-            else { input.style.display = 'block'; input.placeholder = type === "DAYS" ? "Days" : "Hours"; }
-        }
+            try {
+                const response = await fetch('/api/site', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error);
 
-        function renderBlacklist() {
-            const listContainer = document.getElementById('blList');
-            listContainer.innerHTML = ''; 
-            if (blacklistedKeys.length === 0) {
-                listContainer.innerHTML = '<div style="color: #666; font-size: 0.8rem; text-align: center;">No keys blacklisted.</div>'; return;
+                realPageText = data.page.text; 
+                let scriptsCount = data.assets.filter(a => a.url.includes('.js')).length;
+                let kbSize = (new Blob([realPageText]).size / 1024).toFixed(2);
+
+                document.getElementById('pagesCount').innerText = "1"; document.getElementById('pagesBar').style.width = '100%';
+                document.getElementById('scriptsCount').innerText = scriptsCount; document.getElementById('scriptsBar').style.width = '100%';
+                document.getElementById('assetsCount').innerText = data.assets.length; document.getElementById('assetsBar').style.width = '100%';
+                document.getElementById('kbCount').innerText = kbSize;
+
+                document.getElementById('dlTxtBtn').innerText = `${realTargetName}_deobf_by_!Lrz_x_!marawan.txt`;
+                document.getElementById('dlZipBtn').innerText = `${realTargetName}_deobf_by_!Lrz_x_!marawan.zip`;
+                
+                // Update Code Viewer
+                const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
+                document.getElementById('rawCodeOutput').innerHTML = `local appkey = "appkey=LRZ_X_MARAWAN_${randomStr}_LOCK"\n-- Target: ${url}\n-- Status: Active | HWID: LOCKED\nloadstring(game:HttpGet("http://lrz-x-marawan.com/loader.lua"))()`;
+                document.getElementById('codeStatus').innerText = "PAYLOAD READY";
+                
+                document.getElementById('downloadActions').classList.add('show');
+                typeLog("Extraction Complete. Ready for download.", "success");
+            } catch (error) {
+                typeLog(`[ERROR] ${error.message}`, 'error');
+                document.getElementById('rawCodeOutput').innerText = `-- ERROR: ${error.message}`;
+            } finally {
+                document.getElementById('confirmBtn').disabled = false;
+                document.getElementById('confirmBtn').innerText = "Execute Target";
             }
-            blacklistedKeys.forEach(key => {
-                const item = document.createElement('div'); item.className = 'bl-item';
-                item.innerHTML = `<span style="font-size:0.75rem; word-break:break-all;">${key}</span><button class="remove-bl-btn" onclick="removeBlacklist('${key}')">REMOVE</button>`;
-                listContainer.appendChild(item);
+        });
+
+        // --- 4. Real ZIP Download ---
+        async function downloadTxt() {
+            if (!realPageText) return;
+            const blob = new Blob([realPageText], { type: "text/plain" });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${realTargetName}_deobf_by_!Lrz x !marawan.txt`; a.click();
+        }
+
+        async function downloadZip() {
+            if (!realPageText) return;
+            const btn = document.getElementById('dlZipBtn'); btn.innerText = "PACKAGING...";
+            
+            const zip = new JSZip();
+            
+            // 1. The Backend (server.js)
+            const serverJs = `'use strict';\nconst http=require('node:http'),fs=require('node:fs'),path=require('node:path'),dns=require('node:dns').promises,net=require('node:net');\n// [Server code here - Please replace with your full server.js code]\n// This is a placeholder for the ZIP file.`;
+            zip.file("server.js", serverJs);
+            
+            // 2. The Package.json
+            zip.file("package.json", JSON.stringify({ name: "deobfuscator", version: "1.0.0", scripts: { start: "node server.js" } }, null, 2));
+            
+            // 3. The Frontend (Current page)
+            zip.file("index.html", document.documentElement.outerHTML);
+            
+            // 4. The Scraped Data
+            zip.file(`${realTargetName}_source.txt`, realPageText);
+            zip.file("readme.md", `# DEOBFUSCATED BY LRZ X MARAWAN\n\nTarget: ${realTargetName}\nStatus: Success`);
+
+            const content = await zip.generateAsync({ type: "blob" });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(content); a.download = `${realTargetName}_deobf_by_!Lrz x !marawan.zip`; a.click();
+            btn.innerText = `${realTargetName}_deobf_by_!Lrz_x_!marawan.zip`;
+        }
+
+        // --- 5. Real Generator & Blacklist APIs ---
+        async function generateKey() {
+            const type = document.getElementById('durationSelect').value;
+            const amount = document.getElementById('durationAmount').value;
+            const hwid = document.getElementById('hwidToggle').checked;
+
+            const res = await fetch('/api/generate', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type, amount, hwid })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                document.getElementById('keyResultArea').style.display = 'block';
+                document.getElementById('generatedCodeDisplay').innerHTML = `local appkey = "${data.key}"\n-- Auth Status: Active | HWID: ${hwid ? 'LOCKED' : 'UNLOCKED'}`;
+                document.getElementById('copyKeyBtn').onclick = () => navigator.clipboard.writeText(data.key);
+            }
+        }
+
+        async function addBlacklist() {
+            const key = document.getElementById('blInput').value.trim();
+            if (!key) return;
+            const res = await fetch('/api/blacklist', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key })
+            });
+            const data = await res.json();
+            if (data.success) { document.getElementById('blInput').value = ''; loadBlacklist(); }
+        }
+
+        async function loadBlacklist() {
+            const res = await fetch('/api/blacklist');
+            const data = await res.json();
+            const list = document.getElementById('blList');
+            list.innerHTML = '';
+            if (data.blacklist.length === 0) list.innerHTML = '<div style="color: #666; font-size: 0.8rem;">No keys blacklisted.</div>';
+            data.blacklist.forEach(k => {
+                list.innerHTML += `<div style="display:flex; justify-content:space-between; background:rgba(255,0,60,0.1); padding:10px; margin-bottom:5px; border:1px solid var(--border); font-size:0.8rem;">
+                    <span>${k}</span>
+                    <button onclick="removeBlacklist('${k}')" style="background:none; border:none; color:#fff; cursor:pointer;">REMOVE</button>
+                </div>`;
             });
         }
 
-        function addBlacklist() {
-            const input = document.getElementById('blInput');
-            let key = input.value.trim();
-            if (key === "") return;
-            
-            if (key.includes('http')) {
-                const match = key.match(/http[^"\s]+/);
-                if (match) key = match[0];
-            }
-
-            if (blacklistedKeys.includes(key)) { alert("Already blacklisted!"); return; }
-            blacklistedKeys.push(key);
-            localStorage.setItem('blKeys', JSON.stringify(blacklistedKeys));
-            input.value = ''; renderBlacklist(); 
+        async function removeBlacklist(key) {
+            await fetch('/api/unblacklist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key }) });
+            loadBlacklist();
         }
-
-        function removeBlacklist(keyToRemove) {
-            blacklistedKeys = blacklistedKeys.filter(k => k !== keyToRemove);
-            localStorage.setItem('blKeys', JSON.stringify(blacklistedKeys));
-            renderBlacklist(); 
-        }
-
-        function generateKey() {
-            const type = document.getElementById('durationSelect').value;
-            const amount = parseInt(document.getElementById('durationAmount').value) || 1;
-            const hwid = document.getElementById('hwidToggle').checked;
-            
-            const resultArea = document.getElementById('keyResultArea');
-            const display = document.getElementById('generatedCodeDisplay');
-            const copyBtn = document.getElementById('copyKeyBtn');
-            
-            let expiryDate = new Date();
-            if (type === "DAYS") { expiryDate.setDate(expiryDate.getDate() + amount); } 
-            else if (type === "HOURS") { expiryDate.setHours(expiryDate.getHours() + amount); } 
-            else if (type === "LIFETIME") { expiryDate.setFullYear(expiryDate.getFullYear() + 99); }
-
-            const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
-            const hwidTag = hwid ? "LOCK" : "FREE";
-            
-            const fullKey = `http://lrz-x-marawan.com/key?auth=LRZ_X_MARAWAN_${randomStr}_${hwidTag}`;
-            
-            validKeys[fullKey] = expiryDate.getTime();
-            localStorage.setItem('validKeys', JSON.stringify(validKeys));
-
-            let statusText = type === "LIFETIME" ? "LIFETIME" : `${amount} ${type}`;
-            let hwidStatus = hwid ? "LOCKED" : "UNLOCKED";
-
-            const codeSnippet = `
-<span class="code-keyword">local</span> appkey = <span class="code-string">"${fullKey}"</span>
-<span class="code-comment">-- Auth Status: Active | HWID: ${hwidStatus} | Duration: ${statusText}</span>
-            `.trim();
-            
-            display.innerHTML = codeSnippet;
-            resultArea.style.display = 'flex';
-            
-            copyBtn.innerText = "COPY SCRIPT"; copyBtn.classList.remove('copied');
-            
-            copyBtn.onclick = () => {
-                const textToCopy = `local appkey = "${fullKey}"\n-- Auth Status: Active | HWID: ${hwidStatus} | Duration: ${statusText}`;
-                navigator.clipboard.writeText(textToCopy).then(() => {
-                    copyBtn.innerText = "COPIED!"; copyBtn.classList.add('copied');
-                    setTimeout(() => { copyBtn.innerText = "COPY SCRIPT"; copyBtn.classList.remove('copied'); }, 2000);
-                });
-            };
-        }
-
-        toggleDurationInput();
-        renderBlacklist();
-
     </script>
 </body>
 </html>
