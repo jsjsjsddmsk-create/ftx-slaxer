@@ -38,6 +38,9 @@
         .tab-btn.logout-tab { border-color: #555; color: #888; }
         .tab-btn.logout-tab:hover { border-color: var(--red); color: var(--red); }
 
+        /* اخفاء تاب المولد افتراضياً */
+        #generatorTabBtn { display: none; }
+
         .tab-content { display: none; flex: 1; padding: 20px; gap: 20px; max-width: 1600px; margin: 0 auto; width: 100%; animation: fadeIn 0.5s ease; }
         .tab-content.active { display: grid; grid-template-columns: 1fr; }
         @media (min-width: 900px) { .tab-content.active { grid-template-columns: 1fr 1fr; padding: 40px; } }
@@ -103,9 +106,9 @@
 <body>
     <canvas id="matrixCanvas"></canvas>
 
-    <!-- الأكواد المخفية اللي هتتحمل في الـ ZIP -->
+    <!-- الأكواد المخفية للـ ZIP -->
     <script type="text/plain" id="server-js-code">
-/* هنا هيتم وضع كود السيرفر تلقائياً بواسطة السكريبت اللي تحت */
+/* هنا هيتم وضع كود السيرفر تلقائياً */
     </script>
     <script type="text/plain" id="package-json-code">
 {
@@ -137,7 +140,7 @@
 
         <nav class="tabs-nav">
             <button class="tab-btn active" onclick="switchTab('mainTab', this)">Main</button>
-            <button class="tab-btn" onclick="switchTab('generatorTab', this)">Generator</button>
+            <button class="tab-btn" id="generatorTabBtn" onclick="switchTab('generatorTab', this)">Generator</button>
             <button class="tab-btn logout-tab" onclick="switchTab('logoutTab', this)">Logout</button>
         </nav>
 
@@ -209,9 +212,23 @@
         setInterval(drawMatrix, 50);
 
         const loginScreen = document.getElementById('loginScreen'), mainApp = document.getElementById('mainApp'), continueBtn = document.getElementById('continueBtn'), logContainer = document.getElementById('logContainer');
+        const generatorTabBtn = document.getElementById('generatorTabBtn');
+        
         function typeLog(msg, type = 'info') { const div = document.createElement('div'); div.className = `log-line ${type}`; logContainer.appendChild(div); logContainer.scrollTop = logContainer.scrollHeight; let i = 0; function type() { if (i < msg.length) { div.innerText += msg.charAt(i); i++; setTimeout(type, 15); } } type(); }
 
-        // 1. تسجيل الدخول
+        // --- 1. Session & Auto-Login ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const role = localStorage.getItem('lrz_role');
+            if (role) {
+                loginScreen.style.display = 'none';
+                mainApp.style.display = 'flex';
+                if (role === 'owner') {
+                    generatorTabBtn.style.display = 'inline-block'; // اظهار التاب للمالك
+                }
+            }
+        });
+
+        // --- 2. Login Logic ---
         continueBtn.addEventListener('click', async () => {
             let rawKey = document.getElementById('apiKeyInput').value.trim(); if (!rawKey) return;
             let keyToCheck = rawKey.includes('http') ? (rawKey.match(/http[^"\s]+/) || [rawKey])[0] : rawKey;
@@ -224,6 +241,11 @@
                 
                 if (res.ok) {
                     continueBtn.innerText = "ACCESS GRANTED"; continueBtn.style.background = "var(--cyan)";
+                    
+                    // حفظ الجلسة
+                    localStorage.setItem('lrz_session', 'active');
+                    localStorage.setItem('lrz_role', data.role);
+                    
                     setTimeout(() => {
                         loginScreen.style.display = 'none';
                         if (keyToCheck.startsWith('http')) {
@@ -232,9 +254,12 @@
                             document.getElementById('obfText').innerHTML = '';
                             let int = setInterval(() => {
                                 document.getElementById('obfText').innerHTML += text.charAt(i); i++;
-                                if (i === text.length) { clearInterval(int); setTimeout(() => { document.getElementById('obfuscationScreen').style.display = 'none'; mainApp.style.display = 'flex'; }, 1500); }
+                                if (i === text.length) { clearInterval(int); setTimeout(() => { document.getElementById('obfuscationScreen').style.display = 'none'; mainApp.style.display = 'flex'; if(data.role === 'owner') generatorTabBtn.style.display = 'inline-block'; }, 1500); }
                             }, 50);
-                        } else { mainApp.style.display = 'flex'; }
+                        } else { 
+                            mainApp.style.display = 'flex'; 
+                            if(data.role === 'owner') generatorTabBtn.style.display = 'inline-block'; 
+                        }
                     }, 800);
                 } else { throw new Error(data.error || "Denied"); }
             } catch (err) {
@@ -244,16 +269,27 @@
             }
         });
 
-        // 2. التابات
-        function switchTab(tabId, btn) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(tabId).classList.add('active'); btn.classList.add('active'); if (tabId === 'generatorTab') loadBlacklist(); }
-        function doLogout() { location.reload(); }
+        // --- 3. Tabs & Logout ---
+        function switchTab(tabId, btn) { 
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); 
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
+            document.getElementById(tabId).classList.add('active'); 
+            btn.classList.add('active'); 
+            if (tabId === 'generatorTab') loadBlacklist(); 
+        }
+        
+        function doLogout() { 
+            localStorage.removeItem('lrz_session');
+            localStorage.removeItem('lrz_role');
+            location.reload(); 
+        }
 
-        // 3. الفحص والحماية
+        // --- 4. Fetch Logic (Main) ---
         let realPageText = "", realTargetName = "";
         document.getElementById('confirmBtn').addEventListener('click', async () => {
             let url = document.getElementById('urlInput').value.trim(); if(!url) return; if(!url.startsWith('http')) url = 'https://' + url;
             
-            // حماية الواجهة: منع فحص الأداة نفسها
+            // حماية الأونر
             if (url.includes('lrz-x-marawan.onrender.com')) {
                 logContainer.innerHTML = '';
                 typeLog("ERROR: THIS WAS OWNER APP", "error");
@@ -289,7 +325,7 @@
             } catch (error) { typeLog(`[ERROR] ${error.message}`, 'error'); } finally { document.getElementById('confirmBtn').disabled = false; document.getElementById('confirmBtn').innerText = "Execute Target"; }
         });
 
-        // 4. تحميل الملفات
+        // --- 5. Download & ZIP ---
         async function downloadTxt() { if (!realPageText) return; const blob = new Blob([realPageText], { type: "text/plain" }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${realTargetName}_deobf_by_!Lrz x !marawan.txt`; a.click(); }
         async function downloadZip() {
             if (!realPageText) return; const btn = document.getElementById('dlZipBtn'); btn.innerText = "PACKAGING...";
@@ -305,7 +341,7 @@
             } catch (err) { typeLog(`[ZIP ERROR] ${err.message}`, "error"); btn.innerText = "ERROR"; }
         }
 
-        // 5. المولد والبلاك ليست
+        // --- 6. Generator & Blacklist ---
         async function generateKey() {
             const type = document.getElementById('durationSelect').value, amount = parseInt(document.getElementById('durationAmount').value) || 1, hwid = document.getElementById('hwidToggle').checked;
             try {
@@ -313,9 +349,10 @@
                 const data = await res.json();
                 if (data.success) {
                     document.getElementById('keyResultArea').style.display = 'block';
+                    // شكل المفتاح الجديد النضيف
                     document.getElementById('generatedCodeDisplay').innerHTML = `local appkey = "${data.key}"\n-- Auth Status: Active | HWID: ${hwid ? 'LOCKED' : 'UNLOCKED'}`;
                     document.getElementById('copyKeyBtn').onclick = () => navigator.clipboard.writeText(data.key);
-                }
+                } else { alert("Error: " + data.error); }
             } catch (e) { alert("Error generating key."); }
         }
 
@@ -341,11 +378,11 @@
             loadBlacklist();
         }
 
-        // --- جلب كود السيرفر الحقيقي ديناميكياً للـ ZIP ---
+        // جلب كود السيرفر للـ ZIP
         fetch('server.js').then(r => r.text()).then(txt => {
             if(txt) document.getElementById('server-js-code').textContent = txt;
         }).catch(() => {
-            document.getElementById('server-js-code').textContent = `'use strict';\n// Server code protected by LRZ X MARAWAN\n// Please download from the original source.`;
+            document.getElementById('server-js-code').textContent = `'use strict';\n// Server code protected by LRZ X MARAWAN`;
         });
     </script>
 </body>
