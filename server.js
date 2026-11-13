@@ -1,102 +1,214 @@
+// PURE DUMPER HTML V24 backend — Node.js 20+
 'use strict';
-const http = require('node:http'), fs = require('node:fs'), path = require('node:path');
-const dns = require('node:dns').promises, net = require('node:net');
+const http = require('node:http');
+const fs = require('node:fs');
+const path = require('node:path');
+const dns = require('node:dns').promises;
+const net = require('node:net');
 
 const PORT = Number(process.env.PORT || 3000);
-const INDEX = path.join(__dirname, 'index.html');
-const DB_FILE = path.join(__dirname, 'database.json');
+const ROOT = __dirname;
+const MAX_BODY = 4096;
+const MAX_RESPONSE = 3 * 1024 * 1024;
+const TIMEOUT_MS = 15000;
+const rate = new Map();
 
-const MAX_BODY = 12000, MAX_BYTES = 2 * 1024 * 1024, TIMEOUT = 10000, MAX_ASSETS = 12;
-const limits = new Map();
-
-let db = { keys: {}, blacklist: [] };
-if (fs.existsSync(DB_FILE)) {
-    try { db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8')); } catch (e) { console.log("DB Read Error", e); }
+function isPrivateIPv4(ip) {
+  const p = ip.split('.').map(Number);
+  if (p.length !== 4 || p.some(n => !Number.isInteger(n) || n < 0 || n > 255)) return true;
+  const [a,b] = p;
+  return a===0 || a===10 || a===127 || a>=224 ||
+    (a===100 && b>=64 && b<=127) || (a===169 && b===254) ||
+    (a===172 && b>=16 && b<=31) || (a===192 && b===168) ||
+    (a===192 && b===0) || (a===198 && (b===18 || b===19));
 }
-function saveDB() { fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2)); }
 
-function private4(ip){const p=ip.split('.').map(Number);if(p.length!==4||p.some(n=>!Number.isInteger(n)||n<0||n>255))return true;const[a,b]=p;return a===0||a===10||a===127||a>=224||(a===100&&b>=64&&b<=127)||(a===169&&b===254)||(a===172&&b>=16&&b<=31)||(a===192&&b===168)||(a===192&&b===0)||(a===198&&(b===18||b===19));}
-function private6(ip){const x=ip.toLowerCase().split('%')[0];return x==='::'||x==='::1'||x.startsWith('fc')||x.startsWith('fd')||/^fe[89ab]/.test(x)||x.startsWith('ff')||x.startsWith('::ffff:');}
-async function publicOnly(u){if(!['http:','https:'].includes(u.protocol)||u.username||u.password)throw Error('Only public HTTP/HTTPS URLs without credentials are allowed.');const h=u.hostname.toLowerCase().replace(/^\[|\]$/g,'');if(!h||h==='localhost'||h.endsWith('.local')||h.endsWith('.localhost'))throw Error('Local destinations are blocked.');const f=net.isIP(h);if(f===4&&private4(h)||f===6&&private6(h))throw Error('Private or reserved IP blocked.');if(!f){const rs=await dns.lookup(h,{all:true});if(!rs.length||rs.some(r=>r.family===4?private4(r.address):private6(r.address)))throw Error('Hostname resolves to a private address.');}}
+function isPrivateIPv6(ip) {
+  const x = ip.toLowerCase().split('%')[0];
+  return x==='::' || x==='::1' || x.startsWith('fc') || x.startsWith('fd') ||
+    /^fe[89ab]/.test(x) || x.startsWith('ff') || x.startsWith('::ffff:');
+}
 
-function send(res,s,obj){res.writeHead(s,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(obj));}
-function rate(req,res){const k=req.socket.remoteAddress||'unknown',n=Date.now();let v=limits.get(k)||{start:n,count:0};if(n-v.start>60000)v={start:n,count:0};v.count++;limits.set(k,v);if(v.count>30){send(res,429,{error:'Rate limit reached. Try again in one minute.'});return true;}return false;}
-async function fetchText(raw){let u=new URL(raw);for(let i=0;i<=4;i++){await publicOnly(u);const c=new AbortController(),timer=setTimeout(()=>c.abort(),TIMEOUT);let r;try{r=await fetch(u,{redirect:'manual',signal:c.signal,headers:{'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36','Accept':'text/html,application/xhtml+xml,application/javascript,text/css,application/json,text/plain;q=0.9'}});}finally{clearTimeout(timer);}if([301,302,303,307,308].includes(r.status)){if(i===4)throw Error('Redirect limit reached.');const loc=r.headers.get('location');if(!loc)throw Error('Redirect location missing.');u=new URL(loc,u);continue;}if(!r.ok)throw Error('Remote HTTP '+r.status);const type=r.headers.get('content-type')||'';if(!/(text\/|javascript|json|xml|svg)/i.test(type))throw Error('Unsupported content type: '+type);if(Number(r.headers.get('content-length')||0)>MAX_BYTES)throw Error('Resource exceeds 2 MB.');const rd=r.body.getReader(),parts=[];let size=0;while(true){const{done,value}=await rd.read();if(done)break;size+=value.byteLength;if(size>MAX_BYTES){await rd.cancel();throw Error('Resource exceeds 2 MB.');}parts.push(Buffer.from(value));}return{text:Buffer.concat(parts).toString('utf8'),url:u.href,status:r.status,type};}throw Error('Redirect failed.');}
-function readBody(req){return new Promise((ok,no)=>{let s='';req.on('data',c=>{s+=c.toString();if(Buffer.byteLength(s)>MAX_BODY){no(Error('Request too large.'));req.destroy();}});req.on('end',()=>ok(s));req.on('error',no);});}
-function assetsOf(html,base){const set=new Set(),re=/<script\b[^>]*\bsrc\s*=\s*["']([^"']+)["']|<link\b[^>]*\bhref\s*=\s*["']([^"']+)["']/gi;let m;while((m=re.exec(html))&&set.size<MAX_ASSETS){try{const u=new URL(m[1]||m[2],base);if(u.origin===new URL(base).origin&&/\.(js|mjs|css)(?:$|\?)/i.test(u.pathname+u.search))set.add(u.href);}catch{}}return[...set];}
+async function assertPublicHost(url) {
+  if (!['http:','https:'].includes(url.protocol)) throw new Error('Only HTTP and HTTPS URLs are allowed.');
+  if (url.username || url.password) throw new Error('URLs containing credentials are not allowed.');
+  const host = url.hostname.toLowerCase().replace(/^\[|\]$/g,'');
+  if (!host || host==='localhost' || host.endsWith('.localhost') || host.endsWith('.local'))
+    throw new Error('Blocked host: destination must be a public internet host.');
+  const kind = net.isIP(host);
+  if (kind===4 && isPrivateIPv4(host)) throw new Error('Blocked host: private or reserved IP address.');
+  if (kind===6 && isPrivateIPv6(host)) throw new Error('Blocked host: private or reserved IPv6 address.');
+  if (!kind) {
+    const records = await dns.lookup(host, {all:true, verbatim:true});
+    if (!records.length || records.some(r => r.family===4 ? isPrivateIPv4(r.address) : isPrivateIPv6(r.address)))
+      throw new Error('Blocked host: DNS resolved to a private or reserved address.');
+  }
+}
 
-const app = http.createServer(async (req, res) => {
-    const p = new URL(req.url, 'http://localhost').pathname;
-    
-    // تقديم الواجهة
-    if (req.method === 'GET' && (p === '/' || p === '/index.html')) { 
-        return fs.readFile(INDEX, (e, b) => { 
-            if (e) { res.writeHead(500); return res.end('index.html missing'); } 
-            res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'}); res.end(b); 
-        }); 
+function limited(req, res) {
+  const ip = req.socket.remoteAddress || 'unknown';
+  const now = Date.now(), entry = rate.get(ip) || {start:now,count:0};
+  if (now-entry.start > 60000) { entry.start=now; entry.count=0; }
+  entry.count++; rate.set(ip,entry);
+  if (entry.count > 45) {
+    send(res,429,{error:'Too many requests. Wait one minute and retry.'});
+    return true;
+  }
+  return false;
+}
+
+function send(res,status,obj) {
+  const body=JSON.stringify(obj);
+  res.writeHead(status,{
+    'Content-Type':'application/json; charset=utf-8',
+    'Cache-Control':'no-store',
+    'X-Content-Type-Options':'nosniff'
+  });
+  res.end(body);
+}
+
+async function fetchPublic(raw) {
+  let current = new URL(raw);
+  for (let hop=0; hop<=4; hop++) {
+    await assertPublicHost(current);
+    const controller = new AbortController();
+    const timer=setTimeout(()=>controller.abort(),TIMEOUT_MS);
+    let response;
+    try {
+      response=await fetch(current,{
+        method:'GET',
+        redirect:'manual',
+        signal:controller.signal,
+        headers:{
+          'User-Agent':'PURE-DUMPER-HTML/23 (public asset inspector)',
+          'Accept':'text/html,application/javascript,text/css,application/json,*/*;q=0.8'
+        }
+      });
+    } finally {
+      clearTimeout(timer);
     }
 
-    // مسار جديد عشان يجيب كود السيرفر الحقيقي والـ package.json عشان الـ ZIP
-    if (req.method === 'GET' && p === '/api/my-source') {
+    if ([301,302,303,307,308].includes(response.status)) {
+      if (hop===4) throw new Error('Too many redirects (limit: 4).');
+      const loc=response.headers.get('location');
+      if (!loc) throw new Error('Redirect response did not include a Location header.');
+      current=new URL(loc,current);
+      continue;
+    }
+
+    if (!response.ok) {
+      const e=new Error(`Remote server returned HTTP ${response.status}.`);
+      e.status=response.status;
+      throw e;
+    }
+
+    const declared=Number(response.headers.get('content-length')||0);
+    if (declared>MAX_RESPONSE) throw new Error('Remote response exceeds 3 MB limit.');
+
+    const reader=response.body.getReader();
+    const chunks=[];
+    let total=0;
+
+    while (true) {
+      const {done,value}=await reader.read();
+      if(done)break;
+      total+=value.byteLength;
+      if(total>MAX_RESPONSE) {
+        await reader.cancel();
+        throw new Error('Remote response exceeds 3 MB limit.');
+      }
+      chunks.push(Buffer.from(value));
+    }
+
+    const text=Buffer.concat(chunks).toString('utf8');
+    return {
+      text,
+      status:response.status,
+      finalUrl:current.href,
+      contentType:response.headers.get('content-type')||''
+    };
+  }
+  throw new Error('Unable to complete redirect chain.');
+}
+
+const server=http.createServer(async(req,res)=>{
+  if(req.method==='GET' && req.url==='/api/health')
+    return send(res,200,{
+      ok:true,
+      service:'PURE DUMPER HTML V24',
+      node:process.version
+    });
+
+  if(req.method==='POST' && req.url==='/api/fetch'){
+    if(limited(req,res))return;
+    let body='';
+
+    req.on('data',chunk=>{
+      body+=chunk;
+      if(body.length>MAX_BODY){req.destroy();}
+    });
+
+    req.on('end',async()=>{
+      try {
+        const parsed=JSON.parse(body||'{}');
+        if(typeof parsed.url!=='string'||parsed.url.length>2048)
+          return send(res,400,{error:'Provide a valid URL (maximum 2048 characters).'});
+
+        let url;
         try {
-            const serverCode = fs.readFileSync(__filename, 'utf8');
-            const packageCode = fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8');
-            return send(res, 200, { serverCode, packageCode });
-        } catch(e) { return send(res, 500, { error: 'Could not read source files.' }); }
+          url=new URL(parsed.url);
+        } catch {
+          return send(res,400,{error:'Invalid URL.'});
+        }
+
+        const result=await fetchPublic(url.href);
+        send(res,200,result);
+      } catch(e) {
+        const status=e.status||(/Only HTTP|credentials|Blocked host|Invalid URL/i.test(e.message)?400:502);
+        send(res,status,{
+          error:e.name==='AbortError'?'Remote request timed out.':e.message,
+          detail:e.cause?.code||''
+        });
+      }
+    });
+    return;
+  }
+
+  if(req.method==='GET'){
+    const pathname=decodeURIComponent((req.url||'/').split('?')[0]);
+    const target=pathname==='/'?'index.html':pathname.replace(/^\/+/,'');
+    const file=path.resolve(ROOT,target);
+
+    if(!file.startsWith(ROOT+path.sep)){
+      res.writeHead(403);
+      return res.end('Forbidden');
     }
 
-    // الفحص
-    if (req.method === 'POST' && p === '/api/site') { 
-        if (rate(req, res)) return; 
-        try { 
-            const x = JSON.parse(await readBody(req) || '{}'); 
-            if (typeof x.url !== 'string' || x.url.length > 2048) return send(res, 400, {error: 'Enter a valid public URL.'}); 
-            let u; try { u = new URL(x.url); } catch { return send(res, 400, {error: 'Invalid URL.'}); } 
-            const page = await fetchText(u.href); 
-            const assets = []; 
-            for (const link of assetsOf(page.text, page.url)) { try { assets.push(await fetchText(link)); } catch (e) { assets.push({url: link, error: e.message}); } } 
-            return send(res, 200, {page, assets}); 
-        } catch (e) { return send(res, e.name === 'AbortError' ? 504 : 502, {error: e.name === 'AbortError' ? 'Remote site timed out.' : e.message}); } 
-    }
+    fs.readFile(file,(err,data)=>{
+      if(err){
+        res.writeHead(404);
+        return res.end('Not found');
+      }
 
-    // تسجيل الدخول
-    if (req.method === 'POST' && p === '/api/auth') { 
-        try { 
-            const { key } = JSON.parse(await readBody(req) || '{}'); 
-            if (!key) return send(res, 400, { error: 'Key required' }); 
-            const OWNER_KEY = "!LRZ X !MARAWAN-976&$"; 
-            if (key === OWNER_KEY) return send(res, 200, { success: true, role: 'owner' }); 
-            if (db.blacklist.includes(key)) return send(res, 403, { error: 'This key is BLACKLISTED.' }); 
-            if (db.keys[key]) { 
-                if (Date.now() < db.keys[key].expiry) return send(res, 200, { success: true, role: 'user' }); 
-                else { delete db.keys[key]; saveDB(); return send(res, 403, { error: 'This key has EXPIRED.' }); } 
-            } 
-            return send(res, 403, { error: 'Invalid Key.' }); 
-        } catch (e) { return send(res, 500, { error: 'Server error.' }); } 
-    }
+      const ext=path.extname(file);
+      const types={
+        '.html':'text/html; charset=utf-8',
+        '.js':'text/javascript; charset=utf-8',
+        '.css':'text/css; charset=utf-8',
+        '.txt':'text/plain; charset=utf-8'
+      };
 
-    // توليد المفتاح
-    if (req.method === 'POST' && p === '/api/generate') { 
-        try { 
-            const { type, amount, hwid } = JSON.parse(await readBody(req) || '{}'); 
-            let expiry = Date.now(); 
-            if (type === 'DAYS') expiry += (amount * 24 * 60 * 60 * 1000); 
-            else if (type === 'HOURS') expiry += (amount * 60 * 60 * 1000); 
-            else if (type === 'LIFETIME') expiry += (99 * 365 * 24 * 60 * 60 * 1000); 
-            const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase(); 
-            const hwidTag = hwid ? "LOCK" : "FREE"; 
-            const fullKey = `http://lrz-x-marawan.com/key?auth=LRZ_X_MARAWAN_${randomStr}_${hwidTag}`; 
-            db.keys[fullKey] = { expiry, type: type === 'LIFETIME' ? 'LIFETIME' : `${amount} ${type}`, hwid: hwidTag }; 
-            saveDB(); 
-            return send(res, 200, { success: true, key: fullKey, expiry }); 
-        } catch (e) { return send(res, 500, { error: 'Server error.' }); } 
-    }
+      res.writeHead(200,{
+        'Content-Type':types[ext]||'application/octet-stream',
+        'X-Content-Type-Options':'nosniff'
+      });
+      res.end(data);
+    });
+    return;
+  }
 
-    // البلاك ليست
-    if (req.method === 'POST' && p === '/api/blacklist') { const { key } = JSON.parse(await readBody(req) || '{}'); if (key && !db.blacklist.includes(key)) { db.blacklist.push(key); saveDB(); } return send(res, 200, { success: true, blacklist: db.blacklist }); }
-    if (req.method === 'POST' && p === '/api/unblacklist') { const { key } = JSON.parse(await readBody(req) || '{}'); db.blacklist = db.blacklist.filter(k => k !== key); saveDB(); return send(res, 200, { success: true, blacklist: db.blacklist }); }
-    if (req.method === 'GET' && p === '/api/blacklist') { return send(res, 200, { blacklist: db.blacklist }); }
-
-    res.writeHead(404); res.end('Not Found');
+  res.writeHead(405);
+  res.end('Method not allowed');
 });
-app.listen(PORT, '0.0.0.0', () => console.log('🚀 Server running on port ' + PORT));
+
+server.listen(PORT,'0.0.0.0',()=>console.log(`PURE DUMPER HTML V24 listening on ${PORT}`));
